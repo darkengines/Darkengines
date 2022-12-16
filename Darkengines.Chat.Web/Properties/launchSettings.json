@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "Watch": {
+      "commandName": "Executable",
+      "executablePath": "dotnet.exe",
+      "commandLineArgs": "watch",
+      "workingDirectory": "$(ProjectDir)"
+    },
+    "Run": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}
