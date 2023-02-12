@@ -11,8 +11,10 @@ namespace Darkengines.Data {
 		}
 		public ApplicationDbContext CreateDbContext(bool isDesignTime = false) {
 
+			var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 			var configurationBuilder = new ConfigurationBuilder();
 			configurationBuilder.AddJsonFile("appsettings.json");
+			configurationBuilder.AddJsonFile($"appsettings.{environmentName}.json", optional: true);
 			var configuration = configurationBuilder.Build();
 
 			var serviceCollection = new ServiceCollection();
