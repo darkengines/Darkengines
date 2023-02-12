@@ -1,15 +1,15 @@
-﻿using Darkengines.Core.Data;
-using Darkengines.Core.Users.Entities;
-using Darkengines.Core.Users;
+﻿using Darkengines.Data;
+using Darkengines.Users.Entities;
+using Darkengines.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
-using Darkengines.Core.Authentication;
+using Darkengines.Authentication;
 
-namespace Darkengines.Core.Test {
+namespace Darkengines.Test {
 	public static partial class Extensions {
 		public class ApplicationInitializationContext : IIdentityProvider {
 			protected IConfiguration Configuration { get; }

@@ -1,10 +1,10 @@
-﻿using Darkengines.Core.Applications.Entities;
-using Darkengines.Core.Authentication;
-using Darkengines.Core.Data;
-using Darkengines.Core.Test;
-using Darkengines.Core.UserGroups.Entities;
-using Darkengines.Core.Users;
-using Darkengines.Core.Users.Entities;
+﻿using Darkengines.Applications.Entities;
+using Darkengines.Authentication;
+using Darkengines.Data;
+using Darkengines.Test;
+using Darkengines.UserGroups.Entities;
+using Darkengines.Users;
+using Darkengines.Users.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -19,7 +19,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Darkengines.Core.Test {
+namespace Darkengines.Test {
 	public class ApplicationInitializer {
 		protected ApplicationDbContext ApplicationDbContext { get; }
 		public ApplicationInitializer(ApplicationDbContext applicationDbContext) {

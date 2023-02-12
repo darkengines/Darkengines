@@ -1,10 +1,11 @@
-﻿using Darkengines.Core.Authentication;
-using Darkengines.Core.Data;
-using Darkengines.Core.Models;
-using Darkengines.Core.Users.Entities;
+﻿using Darkengines.Authentication;
+using Darkengines.Data;
+using Darkengines.Models;
+using Darkengines.Users.Entities;
 using Darkengines.Expressions;
 using Darkengines.Expressions.Converters;
 using Esprima;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
 
@@ -33,14 +34,9 @@ namespace Darkengines.Chat.Web {
 		public async Task InvokeAsync(
 			HttpContext context,
 			ApplicationDbContext applicationDbContext,
-			Authentication authentication,
+			Authentication.Authentication authentication,
 			Mutation mutation
 		) {
-			//var x = applicationDbContext.Users.Where(Param_0 => (Param_0.Id == 0)).Select(Param_1 => new UserPermission {
-			//	Id = Param_1.Id,
-			//	SelfPermission = false,
-			//	HashedPasswordPermission = false
-			//});
 			var source = context.Request.Path.Value;
 			if (!string.IsNullOrWhiteSpace(source)) source = source.Substring(1);
 
@@ -56,7 +52,6 @@ namespace Darkengines.Chat.Web {
 				{ nameof(Authentication), Expression.Constant(authentication) },
 				{ nameof(Mutation), Expression.Constant(mutation) }
 			};
-
 			foreach (var query in queries) identifiers.Add(query.Key, query.Value);
 
 			var scope = new ConverterScope() {

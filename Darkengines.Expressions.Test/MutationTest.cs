@@ -1,9 +1,9 @@
-﻿using Darkengines.Core.Applications;
-using Darkengines.Core.Applications.Entities;
-using Darkengines.Core.Authentication;
-using Darkengines.Core.Data;
-using Darkengines.Core.UserGroups.Entities;
-using Darkengines.Core.Users.Entities;
+﻿using Darkengines.Applications;
+using Darkengines.Applications.Entities;
+using Darkengines.Authentication;
+using Darkengines.Data;
+using Darkengines.UserGroups.Entities;
+using Darkengines.Users.Entities;
 using Darkengines.Expressions.Mutation;
 using Darkengines.Expressions.Security;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -18,7 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Darkengines.Core.Test {
+namespace Darkengines.Test {
 	[TestClass]
 	public class MutationTest {
 		protected IServiceProvider ServiceProvider { get; }

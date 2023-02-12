@@ -67,6 +67,8 @@ namespace Darkengines.Expressions {
 						if (parameterType.ContainsGenericParameters) {
 							parameterType = parameterType.ReplaceGenericArguments(inferredGenericArguments);
 						}
+						if (typeof(Expression).IsAssignableFrom(parameterType)) parameterType = parameterType.GetGenericArguments()[0];
+						if (candidateParameterArgumentTuple.ArgumentInfo.GenericType.GetGenericParameters().Count() != parameterType.GenericTypeArguments.Length) return null;
 						candidateParameterArgumentTuple.ArgumentInfo.GenericType = parameterType;
 						var argumentType = candidateParameterArgumentTuple.ArgumentInfo.GenericType!.InferGenericArguments(parameterType, inferredGenericArguments);
 						candidateParameterArgumentTuple.ArgumentInfo.ConversionResult = candidateParameterArgumentTuple.ArgumentInfo.Converter.Convert(

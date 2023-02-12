@@ -1,6 +1,6 @@
-﻿using Darkengines.Core.Applications;
-using Darkengines.Core.Data;
-using Darkengines.Core.Users.Entities;
+﻿using Darkengines.Applications;
+using Darkengines.Data;
+using Darkengines.Users.Entities;
 using Darkengines.Expressions.Security;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Darkengines.Core.Test {
+namespace Darkengines.Test {
 	public class TestApplicationContext {
 		public ApplicationInitializer ApplicationInitializer { get; }
 		public IEnumerable<IRuleMap> RuleMaps { get; }

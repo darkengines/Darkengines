@@ -1,7 +1,7 @@
-﻿using Darkengines.Core;
-using Darkengines.Core.Applications;
-using Darkengines.Core.Authentication;
-using Darkengines.Core.Data;
+﻿using Darkengines;
+using Darkengines.Applications;
+using Darkengines.Authentication;
+using Darkengines.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Darkengines.Core.Test {
+namespace Darkengines.Test {
 	public static partial class Extensions {
 		public static IServiceCollection AddTestApplicationContext(this IServiceCollection serviceCollection) {
 

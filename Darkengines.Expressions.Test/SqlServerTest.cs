@@ -1,7 +1,7 @@
-﻿using Darkengines.Core.Applications;
-using Darkengines.Core.Data;
-using Darkengines.Core.UserGroups.Entities;
-using Darkengines.Core.Users.Entities;
+﻿using Darkengines.Applications;
+using Darkengines.Data;
+using Darkengines.UserGroups.Entities;
+using Darkengines.Users.Entities;
 using Darkengines.Expressions.Queryable;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Darkengines.Core.Test {
+namespace Darkengines.Test {
 	[TestClass]
 	public class SqlServerTest {
 		protected IServiceProvider ServiceProvider { get; }
