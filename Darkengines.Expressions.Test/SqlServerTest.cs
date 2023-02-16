@@ -19,7 +19,7 @@ namespace Darkengines.Test {
 		protected IServiceProvider ServiceProvider { get; }
 		public SqlServerTest() {
 			var serviceCollection = new ServiceCollection();
-			serviceCollection.AddTestApplicationContext().AddDarkengines();
+			serviceCollection.AddTestApplicationContext().AddDarkengines(null);
 			ServiceProvider = serviceCollection.BuildServiceProvider();
 		}
 		[TestMethod]
