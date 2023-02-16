@@ -20,7 +20,7 @@ namespace Darkengines.Test {
 			return serviceCollection.AddSingleton<ApplicationInitializer, ApplicationInitializer>()
 				.AddSingleton<IApplicationContext, ApplicationContext>()
 				.AddSingleton<TestApplicationContext>()
-				.AddDarkengines()
+				.AddDarkengines(null)
 				.AddDbContext<ApplicationDbContext>((serviceProvider, options) => {
 					var model = serviceProvider.GetRequiredService<IModel>();
 					var interceptors = serviceProvider.GetRequiredService<IEnumerable<IInterceptor>>();
