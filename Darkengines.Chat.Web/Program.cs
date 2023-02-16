@@ -30,10 +30,9 @@ applicationBuilder.Host.UseSerilog((context, loggerConfiguration) =>
 	.Enrich.WithProperty(nameof(context.HostingEnvironment.ApplicationName), context.HostingEnvironment.ApplicationName)
 	.Enrich.WithProperty(nameof(context.HostingEnvironment.EnvironmentName), context.HostingEnvironment.EnvironmentName)
 );
-
 applicationBuilder.Services
 	.AddHsts(options => { })
-	.AddDarkengines()
+	.AddDarkengines(applicationBuilder.Configuration)
 	.AddCors()
 	.AddScoped<HttpIdentityProvider>()
 	.AddSingleton<ITraceWriter, SerilogTraceWriter>()

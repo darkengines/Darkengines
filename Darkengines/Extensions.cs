@@ -40,12 +40,10 @@ namespace Darkengines {
 			});
 			return serviceCollection;
 		}
-		public static IServiceCollection AddDarkengines(this IServiceCollection serviceCollection) {
-			var configurationBuilder = new ConfigurationBuilder();
-			configurationBuilder.AddJsonFile("appsettings.json");
-			var configuration = configurationBuilder.Build();
+		public static IServiceCollection AddDarkengines(this IServiceCollection serviceCollection, IConfiguration configuration) {
+
 			serviceCollection.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-			serviceCollection.AddSingleton<IConfiguration>(configuration);
+			serviceCollection.AddSingleton(configuration);
 			serviceCollection.AddEntityFrameworkSqlServer();
 			serviceCollection.AddEntityFrameworkSqlServerNetTopologySuite();
 			serviceCollection.AddDarkenginesModel(false);
