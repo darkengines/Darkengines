@@ -20,9 +20,8 @@ using Microsoft.AspNetCore.Builder;
 using System.Diagnostics;
 
 var applicationBuilder = WebApplication.CreateBuilder(args);
-applicationBuilder.Configuration.AddCommandLine(args);
 applicationBuilder.Configuration.AddJsonFile("appsettings.json");
-applicationBuilder.Configuration.AddJsonFile($"appsettings.{applicationBuilder.Environment.EnvironmentName}.json", optional: true)
+applicationBuilder.Configuration.AddJsonFile($"appsettings.{applicationBuilder.Environment.EnvironmentName}.json", optional: true);
 applicationBuilder.Host.UseSerilog((context, loggerConfiguration) =>
 	loggerConfiguration.ReadFrom.Configuration(context.Configuration)
 	.Enrich.WithProperty(nameof(context.HostingEnvironment.ApplicationName), context.HostingEnvironment.ApplicationName)
