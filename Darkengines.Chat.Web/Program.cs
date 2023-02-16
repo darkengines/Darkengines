@@ -19,7 +19,10 @@ using Darkengines.Identity;
 using Microsoft.AspNetCore.Builder;
 using System.Diagnostics;
 
+
 var applicationBuilder = WebApplication.CreateBuilder(args);
+Console.WriteLine($"Environment: {applicationBuilder.Environment.EnvironmentName}");
+
 applicationBuilder.Configuration.AddJsonFile("appsettings.json");
 applicationBuilder.Configuration.AddJsonFile($"appsettings.{applicationBuilder.Environment.EnvironmentName}.json", optional: true);
 applicationBuilder.Host.UseSerilog((context, loggerConfiguration) =>
