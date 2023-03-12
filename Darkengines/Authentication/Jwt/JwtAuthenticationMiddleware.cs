@@ -31,7 +31,7 @@ namespace Darkengines.Authentication.Jwt {
 					out var securityToken
 				);
 				var jwt = new JwtSecurityToken(idToken);
-				var user = (User)jwt.Payload["user"];
+				var user = default(User);//(User)jwt.Payload["user"];
 				httpIdentityProvider.Identity = new Identity(user);
 			} else {
 				httpIdentityProvider.Identity = new Identity(null);

@@ -18,7 +18,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
 			var type = default(Type);
 			if (node.Callee is Esprima.Ast.MemberExpression javascriptMemberExpression) {
 				if (javascriptMemberExpression.Property is Esprima.Ast.Identifier javascriptMemberIdentifier) {
-					var methodName = javascriptMemberIdentifier.Name;
+					var methodName = javascriptMemberIdentifier.Name.ToPascalCase();
 					var memberSyntaxConverter = syntaxNodeConverterContext.GetSyntaxNodeConverter(Language, javascriptMemberExpression.Object);
 					var memberSyntaxExpressionArgumentInfo = new InvocationArgumentInfo(memberSyntaxConverter, javascriptMemberExpression.Object, syntaxNodeConverterContext, scope, conversionArgument);
 					var memberExpression = memberSyntaxExpressionArgumentInfo.ConversionResult?.Expression;
@@ -56,7 +56,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
 							argument,
 							syntaxNodeConverterContext,
 							scope,
-							conversionArgument
+							new ConversionArgument { }
 						)).ToArray();
 						var areArgumentClosedTypes = invocationArgumentInfos.All(invocationArgumentInfo => invocationArgumentInfo.ConversionResult?.Expression != null);
 
