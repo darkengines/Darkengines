@@ -14,6 +14,8 @@ namespace Darkengines.Expressions.Converters.Javascript {
 				.AddSingleton<IConverter, IdentifierConverter>()
 				.AddSingleton<IConverter, CallExpressionConverter>()
 				.AddSingleton<IConverter, LiteralConverter>()
+				.AddSingleton<IConverter, LogicalExpressionConverter>()
+				.AddSingleton<IConverter, UnaryExpressionConverter>()
 				.AddSingleton<IConverter, MemberExpressionConverter>()
 				.AddSingleton<IConverter, StaticMemberExpressionConverter>()
 				.AddSingleton<IConverter, ObjectExpressionConverter>();

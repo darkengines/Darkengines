@@ -32,7 +32,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
 			}
 			if (type != null) {
 				if (syntaxNode.Property is Esprima.Ast.Identifier javascriptMemberIdentifier) {
-					var memberInfo = type.GetMember(javascriptMemberIdentifier.Name!);
+					var memberInfo = type.GetMember(javascriptMemberIdentifier.Name.ToPascalCase()!);
 					if (memberInfo != null) {
 						var expression = Expression.MakeMemberAccess(objectConvertionResult.Expression, memberInfo[0]);
 						return new ConverterResult(expression);

@@ -68,7 +68,7 @@ namespace Darkengines.Expressions {
 							parameterType = parameterType.ReplaceGenericArguments(inferredGenericArguments);
 						}
 						if (typeof(Expression).IsAssignableFrom(parameterType)) parameterType = parameterType.GetGenericArguments()[0];
-						if (candidateParameterArgumentTuple.ArgumentInfo.GenericType.GetGenericParameters().Count() != parameterType.GenericTypeArguments.Length) return null;
+						//if (candidateParameterArgumentTuple.ArgumentInfo.GenericType.GetGenericParameters().Count() != parameterType.GenericTypeArguments.Length) return null;
 						candidateParameterArgumentTuple.ArgumentInfo.GenericType = parameterType;
 						var argumentType = candidateParameterArgumentTuple.ArgumentInfo.GenericType!.InferGenericArguments(parameterType, inferredGenericArguments);
 						candidateParameterArgumentTuple.ArgumentInfo.ConversionResult = candidateParameterArgumentTuple.ArgumentInfo.Converter.Convert(
@@ -80,11 +80,22 @@ namespace Darkengines.Expressions {
 								ExpectedType = argumentType
 							}
 						);
-						if (typeof(Expression).IsAssignableFrom(argumentType)) argumentType = argumentType.GetGenericArguments()[0];
 						argumentType.InferGenericArguments(candidateParameterArgumentTuple.ArgumentInfo.ConversionResult!.Expression!.Type, inferredGenericArguments);
+						if (typeof(Expression).IsAssignableFrom(argumentType)) argumentType = argumentType.GetGenericArguments()[0];
 						return candidateParameterArgumentTuple.ArgumentInfo.ConversionResult.Expression.Type;
 					} else {
+						//candidateParameterArgumentTuple.ArgumentInfo.GenericType = parameterType;
+						//var argumentType = candidateParameterArgumentTuple.ArgumentInfo.GenericType!.InferGenericArguments(parameterType, inferredGenericArguments);
 						var argumentType = candidateParameterArgumentTuple.ParameterInfo.ParameterType.InferGenericArguments(candidateParameterArgumentTuple.ArgumentInfo.ConversionResult!.Expression!.Type, inferredGenericArguments);
+						candidateParameterArgumentTuple.ArgumentInfo.ConversionResult = candidateParameterArgumentTuple.ArgumentInfo.Converter.Convert(
+							candidateParameterArgumentTuple.ArgumentInfo.Node,
+							candidateParameterArgumentTuple.ArgumentInfo.ConverterContext,
+							scope,
+							new ConversionArgument() {
+								//GenericArguments = genericArguments.Select(ga => inferredGenericArguments[ga]).ToArray(),
+								ExpectedType = argumentType
+							}
+						);
 						if (!argumentType.IsAssignableFrom(candidateParameterArgumentTuple.ArgumentInfo.ConversionResult!.Expression!.Type)) return null;
 						return argumentType;
 					}

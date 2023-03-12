@@ -8,6 +8,7 @@ using Esprima;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
+using System.Diagnostics;
 
 namespace Darkengines.Chat.Web {
 	//class UserPermission {
@@ -41,7 +42,7 @@ namespace Darkengines.Chat.Web {
 			if (!string.IsNullOrWhiteSpace(source)) source = source.Substring(1);
 
 			var queries = applicationDbContext.Model.GetEntityTypes().Select(entityType => {
-				return new KeyValuePair<string, Expression>(entityType.ShortName(), applicationDbContext.GetQuery(entityType.ClrType).Expression);
+				return new KeyValuePair<string, Expression>(entityType.ShortName(), Expression.Constant(applicationDbContext.GetQuery(entityType.ClrType)));
 			});
 
 			var identifiers = new Dictionary<string, Expression>() {
@@ -63,21 +64,26 @@ namespace Darkengines.Chat.Web {
 					source = await reader.ReadToEndAsync();
 				}
 			}
-			var javascriptParser = new JavaScriptParser(new ParserOptions() { Tokens = true });
+			var javascriptParser = new JavaScriptParser(new ParserOptions() { Tokens = true } );
 			var tree = javascriptParser.ParseScript(source, source).Body.First() as Esprima.Ast.ExpressionStatement;
 			var root = tree.Expression;
 
 			//var tree = CSharpSyntaxTree.ParseText(source);
 			//var root = await tree.GetRootAsync();
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
 			var conversionResult = ConverterContext.Convert("Javascript", root, scope);
+			stopwatch.Stop();
+			Console.WriteLine(stopwatch.Elapsed);
 			var expression = conversionResult.Expression!;
 			var result = default(object);
+
 			if (conversionResult.IsAsynchronous) {
 				var lambda = Expression.Lambda<Func<dynamic>>(expression);
 				var func = lambda.Compile();
 				result = await func();
 			} else {
-				var lambda = Expression.Lambda<Func<dynamic>>(expression);
+				var lambda = Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)));
 				var func = lambda.Compile();
 				result = func();
 			}
@@ -87,5 +93,6 @@ namespace Darkengines.Chat.Web {
 			}
 			//await Next(context);
 		}
+
 	}
 }

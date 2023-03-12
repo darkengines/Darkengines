@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Darkengines.Expressions.Converters.Javascript {
-	public class BinaryExpressionConverter : JavascriptExpressionConverter<Esprima.Ast.BinaryExpression> {
-		public override ConverterResult Convert(Esprima.Ast.BinaryExpression syntaxNode, ConversionContext syntaxNodeConverterContext, ConverterScope scope, ConversionArgument? argument) {
+	public class LogicalExpressionConverter : JavascriptExpressionConverter<Esprima.Ast.LogicalExpression> {
+		public override ConverterResult Convert(Esprima.Ast.LogicalExpression syntaxNode, ConversionContext syntaxNodeConverterContext, ConverterScope scope, ConversionArgument? argument) {
 			var left = syntaxNodeConverterContext.GetSyntaxNodeConverter(Language, syntaxNode.Left).Convert(syntaxNode.Left, syntaxNodeConverterContext, scope);
-			var right = syntaxNodeConverterContext.GetSyntaxNodeConverter(Language, syntaxNode.Right).Convert(syntaxNode.Right, syntaxNodeConverterContext, scope, new ConversionArgument { ExpectedType = left.Expression!.Type });
+			var right = syntaxNodeConverterContext.GetSyntaxNodeConverter(Language, syntaxNode.Right).Convert(syntaxNode.Right, syntaxNodeConverterContext, scope);
 			var expression = Expression.MakeBinary(BinaryExpressionMap.ExpressionTypeMap[syntaxNode.Operator], left.Expression!, Expression.Convert(right.Expression!, left.Expression!.Type));
 			return new ConverterResult(expression);
 		}
