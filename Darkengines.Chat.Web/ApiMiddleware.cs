@@ -21,11 +21,19 @@ namespace Darkengines.Chat.Web {
 		protected JsonSerializer JsonSerializer { get; }
 		protected ConversionContext ConverterContext { get; }
 		protected ModelProvider ModelProvider { get; }
+		protected ILogger<ApiMiddleware> Logger { get; }
 
-		public ApiMiddleware(RequestDelegate next, JsonSerializer jsonSerializer, ConversionContext converterContext, ModelProvider modelProvider) {
+		public ApiMiddleware(
+			RequestDelegate next,
+			JsonSerializer jsonSerializer,
+			ConversionContext converterContext,
+			ModelProvider modelProvider,
+			ILogger<ApiMiddleware> logger
+		) {
 			Next = next;
 			ModelProvider = modelProvider;
 			JsonSerializer = jsonSerializer;
+			Logger = logger;
 			var extensionTypes = new[] { typeof(Queryable), typeof(Enumerable), typeof(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions) };
 			var typeIdentifiers = new Dictionary<string, Type>() { };
 			converterContext.TypeIdentifiers = typeIdentifiers;
@@ -64,7 +72,7 @@ namespace Darkengines.Chat.Web {
 					source = await reader.ReadToEndAsync();
 				}
 			}
-			var javascriptParser = new JavaScriptParser(new ParserOptions() { Tokens = true } );
+			var javascriptParser = new JavaScriptParser(new ParserOptions() { Tokens = true });
 			var tree = javascriptParser.ParseScript(source, source).Body.First() as Esprima.Ast.ExpressionStatement;
 			var root = tree.Expression;
 
@@ -74,7 +82,7 @@ namespace Darkengines.Chat.Web {
 			stopwatch.Start();
 			var conversionResult = ConverterContext.Convert("Javascript", root, scope);
 			stopwatch.Stop();
-			Console.WriteLine(stopwatch.Elapsed);
+			Logger.LogInformation($"Input expression convertion duration: ${stopwatch.Elapsed}");
 			var expression = conversionResult.Expression!;
 			var result = default(object);
 

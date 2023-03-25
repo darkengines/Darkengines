@@ -6,11 +6,11 @@ using System.Text;
 
 namespace Darkengines.Expressions.Mutation {
 	public class PropertyPropertyTuple {
-		public PropertyPropertyTuple(IProperty property, JProperty jPropperty) {
+		public PropertyPropertyTuple(IPropertyBase property, JProperty jPropperty) {
 			Property = property;
 			JProperty = jPropperty;
 		}
-		public IProperty Property { get; }
+		public IPropertyBase Property { get; }
 		public JProperty JProperty { get; }
 	}
 }

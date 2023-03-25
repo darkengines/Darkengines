@@ -24,13 +24,15 @@ namespace Darkengines.Data {
 		protected IEnumerable<IRuleMap> RuleMaps { get; }
 		protected ApplicationDbContext ApplicationDbContext { get; }
 		protected IApplicationContext ApplicationContext { get; }
+		protected IEnumerable<IMutationInterceptor> MutationInterceptors { get; }
 		public Mutation(
 			JsonSerializer jsonSerializer,
 			IModel model,
 			PermissionEntityTypeBuilder permissionEntityTypeBuilder,
 			IEnumerable<IRuleMap> ruleMaps,
 			ApplicationDbContext applicationDbContext,
-			IApplicationContext applicationContext
+			IApplicationContext applicationContext,
+			IEnumerable<IMutationInterceptor> mutationInterceptors
 		) {
 			JsonSerializer = jsonSerializer;
 			Model = model;
@@ -38,10 +40,11 @@ namespace Darkengines.Data {
 			RuleMaps = ruleMaps;
 			ApplicationDbContext = applicationDbContext;
 			ApplicationContext = applicationContext;
+			MutationInterceptors = mutationInterceptors;
 		}
 		public async Task<object> Mutate(string type, JObject jObject) {
 			var entityType = Model.FindEntityType(type);
-			var mutationContext = new MutationContext(PermissionEntityTypeBuilder, RuleMaps, ApplicationContext, JsonSerializer, ApplicationDbContext);
+			var mutationContext = new MutationContext(PermissionEntityTypeBuilder, RuleMaps, ApplicationContext, JsonSerializer, ApplicationDbContext, MutationInterceptors);
 			var entityMutationInfo = new EntityMutationInfo(entityType, jObject, mutationContext);
 			var entry = entityMutationInfo.GetEntry();
 			var entity = entry.Entity;

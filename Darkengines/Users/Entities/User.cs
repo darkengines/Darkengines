@@ -18,6 +18,8 @@ namespace Darkengines.Users.Entities {
 		}
 		[JwtProperty]
 		public int Id { get; set; }
+		public string Login { get; set; }
+		public string? Password { get; set; }
 		public byte[]? HashedPassword { get; set; }
 		public UserProfile? UserProfile { get; set; }
 		public UserSettings? UserSettings { get; set; }

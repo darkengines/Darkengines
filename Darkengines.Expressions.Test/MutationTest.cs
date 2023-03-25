@@ -48,7 +48,7 @@ namespace Darkengines.Test {
 
 			var serializedUser = JObject.FromObject(model, jsonSerializer);
 			var userEntityType = testApplicationContext.ApplicationDbContext.Model.GetEntityTypes().First(entityType => entityType.ClrType == model.GetType());
-			var mutationContext = new MutationContext(entityPermissionTypeBuilder, testApplicationContext.RuleMaps, securityContext, jsonSerializer, testApplicationContext.ApplicationDbContext);
+			var mutationContext = new MutationContext(entityPermissionTypeBuilder, testApplicationContext.RuleMaps, securityContext, jsonSerializer, testApplicationContext.ApplicationDbContext, null);
 			var entityMutationInfo = new EntityMutationInfo(userEntityType, serializedUser, mutationContext);
 			var entry = entityMutationInfo.GetEntry();
 			await testApplicationContext.ApplicationDbContext.SaveChangesAsync();

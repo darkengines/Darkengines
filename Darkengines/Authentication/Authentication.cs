@@ -67,7 +67,7 @@ namespace Darkengines.Authentication {
 				}
 			};
 		}
-		public async Task<string> Create(string email, string password) {
+		public async Task<string> Create(string login, string email, string password) {
 			var hashedEmailAddress = ToLowerInvariantSHA256(email);
 			var hashedPassword = ToSHA256(password);
 
@@ -79,6 +79,7 @@ namespace Darkengines.Authentication {
 				);
 			if (userEmailAddress != null) throw new EmailAlreadyInUseException();
 			var user = new User() {
+				Login= login,
 				HashedPassword = hashedPassword,
 			};
 			user.UserEmailAddresses.Add(new UserEmailAddress {

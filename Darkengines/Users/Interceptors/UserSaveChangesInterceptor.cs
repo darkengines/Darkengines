@@ -32,6 +32,12 @@ namespace Darkengines.Users.Interceptors {
 		//	return await base.SavingChangesAsync(eventData, result, cancellationToken);
 		//}
 
+		public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default) {
+			//foreach (var userEmailAddressEntry in eventData.Context.ChangeTracker.Entries<UserEmailAddress>().Where(entry => entry.State == EntityState.Added)) {
+			//	userEmailAddressEntry.Entity.HashedEmailAddress = userEmailAddressEntry.Entity.EmailAddress.ToLowerInvariantSHA256();
+			//}
+			return base.SavingChangesAsync(eventData, result, cancellationToken);
+		}
 		public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default) {
 			foreach (var userEmailAddressEntry in eventData.Context.ChangeTracker.Entries<UserEmailAddress>().Where(entry => entry.State == EntityState.Added)) {
 				Console.WriteLine($"SEND {userEmailAddressEntry.Entity.EmailAddress} {userEmailAddressEntry.Entity.Guid}");
