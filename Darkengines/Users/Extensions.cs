@@ -5,17 +5,25 @@ using Darkengines.Expressions.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Darkengines.Users.Interceptors;
+using Darkengines.Expressions.Mutation;
 
 namespace Darkengines.Users {
 	public static class Extensions {
 		public static IServiceCollection AddUsers(this IServiceCollection serviceCollection) {
-			return serviceCollection.AddSingleton<IRuleMap, UserRule>().AddSingleton<IRuleMap, UserProfileRule>().AddSingleton<IRuleMap, UserEmailAddressRuleMap>();
+			return serviceCollection.AddSingleton<IRuleMap, UserRule>().AddSingleton<IRuleMap, UserProfileRule>().AddSingleton<IRuleMap, UserEmailAddressRuleMap>()
+				.AddScoped<IInterceptor, UserSaveChangesInterceptor>()
+				//.AddScoped<IMutationInterceptor, UserMutationInterceptor>();
 		}
 		public static ModelBuilder ConfigureUsers(this ModelBuilder modelBuilder) {
 			var userEntityTypeBuilder = modelBuilder.Entity<User>();
 			userEntityTypeBuilder.HasKey(user => user.Id);
 			userEntityTypeBuilder.AsMonitored();
 			userEntityTypeBuilder.AsActiveStateOwner();
+			userEntityTypeBuilder.Ignore(user => user.Password);
+			userEntityTypeBuilder.Property(user => user.Login).HasMaxLength(256).IsRequired();
+			userEntityTypeBuilder.HasIndex(user => user.Login).IsUnique();
 			userEntityTypeBuilder.Property(user => user.HashedPassword).IsRequired();
 			userEntityTypeBuilder.Property(user => user.LastIpAddress);
 			userEntityTypeBuilder.HasOne(user => user.UserProfile).WithOne(userProfile => userProfile.User).HasForeignKey<UserProfile>(userProfile => userProfile.Id);

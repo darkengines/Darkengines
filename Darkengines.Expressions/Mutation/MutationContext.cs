@@ -13,12 +13,21 @@ namespace Darkengines.Expressions.Mutation {
 	public class MutationContext {
 		public PermissionEntityTypeBuilder PermissionEntityTypeBuilder { get; }
 		public IEnumerable<IRuleMap> RuleMaps { get; }
+		public IEnumerable<IMutationInterceptor> MutationInterceptors { get; }
 		public object SecurityContext { get; }
 		public JsonSerializer JsonSerializer { get; }
 		public IDictionary<string, JObject> JObjectReferenceMapping { get; }
 		public IDictionary<JObject, EntityMutationInfo> JObjectEntityMutationInfoMapping { get; }
 		public DbContext DbContext { get; }
-		public MutationContext(PermissionEntityTypeBuilder permissionEntityTypeBuilder, IEnumerable<IRuleMap> ruleMaps, object securityContext, JsonSerializer jsonSerializer, DbContext dbContext) {
+		public MutationContext(
+			PermissionEntityTypeBuilder permissionEntityTypeBuilder,
+			IEnumerable<IRuleMap> ruleMaps,
+			object securityContext,
+			JsonSerializer jsonSerializer,
+			DbContext dbContext,
+			IEnumerable<IMutationInterceptor> mutationInterceptors
+		) {
+			MutationInterceptors = mutationInterceptors;
 			JObjectReferenceMapping = new Dictionary<string, JObject>();
 			JObjectEntityMutationInfoMapping = new Dictionary<JObject, EntityMutationInfo>();
 			PermissionEntityTypeBuilder = permissionEntityTypeBuilder;

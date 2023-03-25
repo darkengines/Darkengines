@@ -22,6 +22,8 @@ using Darkengines.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
+using System.Security.Cryptography;
+using Darkengines.Users.Interceptors;
 
 namespace Darkengines {
 	public static class Extensions {
@@ -71,14 +73,28 @@ namespace Darkengines {
 				.AddEntityFrameworkSqlServer()
 				.AddEntityFrameworkSqlServerNetTopologySuite()
 				.AddDbContext<DbContext>(
-					(p, o) =>
-						o.UseSqlServer("Server=.", sqlServerOptions => {
+					(serviceProvider, dbContextOptionsBuilder) => {
+						dbContextOptionsBuilder.AddInterceptors(serviceProvider.GetRequiredService<IEnumerable<IInterceptor>>());
+						dbContextOptionsBuilder.UseSqlServer("Server=.", sqlServerOptions => {
 							sqlServerOptions.UseNetTopologySuite();
 						})
-						.UseInternalServiceProvider(p))
+						.UseInternalServiceProvider(serviceProvider);
+					})
 				.BuildServiceProvider();
 
 			return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+		}
+	}
+	public static class StringExtensions {
+		public static byte[] ToLowerInvariantSHA256(this string @string) {
+			return ToSHA256(@string.ToLowerInvariant());
+		}
+		public static byte[] ToSHA256(this string @string) {
+			byte[] hashedValue = null;
+			using (var sha256 = SHA256.Create()) {
+				hashedValue = sha256.ComputeHash(Encoding.UTF8.GetBytes(@string));
+			}
+			return hashedValue;
 		}
 	}
 }

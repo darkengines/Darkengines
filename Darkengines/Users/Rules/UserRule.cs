@@ -16,6 +16,7 @@ namespace Darkengines.Users.Rules {
 			Expose(user => user.UserEmailAddresses).WithOperation(Operation.Write, (user, context) => user.Id == context.CurrentUser.Id);
 			Expose(user => user.UserEmailAddresses).WithOperation(Operation.Write, (user, context) => user.Id == context.CurrentUser.Id);
 			Expose(user => user.HashedPassword).WithOperation(Operation.Write, (user, context) => user.Id == context.CurrentUser.Id);
+			Expose(user => user.Password).WithOperation(Operation.Write, (user, context) => user.Id == context.CurrentUser.Id);
 			//Property(user => user.EmailAddress!).WithOperation(
 			//	Operation.ReadWrite,
 			//	(instance, context) => instance.Id == context.CurrentUser.Id

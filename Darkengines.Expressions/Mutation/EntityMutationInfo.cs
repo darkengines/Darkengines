@@ -37,6 +37,7 @@ namespace Darkengines.Expressions.Mutation {
 		protected IDictionary<IPropertyBase, PropertyMutationInfo> PropertyMutationInfos { get; }
 		protected IDictionary<IPropertyBase, ReferenceMutationInfo> ReferenceMutationInfos { get; }
 		protected IDictionary<IPropertyBase, CollectionMutationInfo> CollectionMutationInfos { get; }
+		protected JProperty[] UnmanagedJsonProperties { get; }
 		protected EntityState EntityState { get; }
 		protected bool IsReference { get; }
 		public EntityMutationInfo(IEntityType entityType, JObject jObject, MutationContext mutationContext) {
@@ -61,6 +62,11 @@ namespace Darkengines.Expressions.Mutation {
 			var jProperties = JObject.Properties();
 			var properties = EntityType.GetProperties();
 			var navigations = EntityType.GetNavigations();
+			var members = properties.Cast<IPropertyBase>().Concat(navigations).ToArray();
+			var jPropertyProperties = jProperties.GroupJoin(members, jProperty => jProperty.Name, member => member.Name, (jproperty, members) => {
+				return new PropertyPropertyTuple(members.FirstOrDefault(), jproperty);
+			});
+			UnmanagedJsonProperties = jPropertyProperties.Where(tuple => tuple.Property == null).Select(tuple => tuple.JProperty).ToArray();
 			var references = navigations.Where(navigation => !navigation.IsCollection);
 			var collections = navigations.Where(navigation => navigation.IsCollection);
 
@@ -113,6 +119,11 @@ namespace Darkengines.Expressions.Mutation {
 			if (JObject.TryGetValue("$isDeletion", out var isDeletion) && isDeletion.Value<bool>()) {
 				entry.State = EntityState.Deleted;
 			}
+
+			foreach (var mutationInterceptor in EntityMutationContext.MutationInterceptors) {
+				mutationInterceptor.PopulatingEntity(JObject, entry);
+			}
+
 			return entry;
 		}
 
