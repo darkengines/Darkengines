@@ -13,7 +13,7 @@ namespace Darkengines.Users {
 	public static class Extensions {
 		public static IServiceCollection AddUsers(this IServiceCollection serviceCollection) {
 			return serviceCollection.AddSingleton<IRuleMap, UserRule>().AddSingleton<IRuleMap, UserProfileRule>().AddSingleton<IRuleMap, UserEmailAddressRuleMap>()
-				.AddScoped<IInterceptor, UserSaveChangesInterceptor>()
+				.AddScoped<IInterceptor, UserSaveChangesInterceptor>();
 				//.AddScoped<IMutationInterceptor, UserMutationInterceptor>();
 		}
 		public static ModelBuilder ConfigureUsers(this ModelBuilder modelBuilder) {
