@@ -18,6 +18,10 @@ using Microsoft.EntityFrameworkCore;
 using Darkengines.Users.Entities;
 using Darkengines.Applications;
 using Comeet.Core.Common;
+using System.Net;
+using MailKit.Net.Smtp;
+using MimeKit;
+using Darkengines.Mailing;
 
 namespace Darkengines.Authentication {
 	public class Authentication {
@@ -30,6 +34,7 @@ namespace Darkengines.Authentication {
 		protected ApplicationDbContext ApplicationDbContext { get; }
 		protected AuthenticationOptions AuthenticationOptions { get; }
 		protected IIdentityProvider IdentityProvider { get; }
+		protected SmtpClientFactory SmtpClientFactory {get; }
 
 		public Authentication(
 			JwtAuthenticationConfiguration jwtAuthenticationConfiguration,
@@ -39,7 +44,8 @@ namespace Darkengines.Authentication {
 			IHttpContextAccessor httpContextAccessor,
 			IOptions<AuthenticationOptions> options,
 			ApplicationDbContext applicationDbContext,
-			IIdentityProvider identityProvider
+			IIdentityProvider identityProvider,
+			SmtpClientFactory smtpClientFactory
 		) {
 			ApplicationDbContext = applicationDbContext;
 			IdentityProvider = identityProvider;
@@ -49,6 +55,7 @@ namespace Darkengines.Authentication {
 			JwtAuthenticationConfiguration = jwtAuthenticationConfiguration;
 			Configuration = configuration;
 			JsonSerializer = jsonSerializer;
+			SmtpClientFactory = smtpClientFactory;
 
 			JwtJsonSerializer = new JsonSerializer();
 			JwtJsonSerializer.ContractResolver = new JwtPropertyContractResolver();
@@ -79,7 +86,7 @@ namespace Darkengines.Authentication {
 				);
 			if (userEmailAddress != null) throw new EmailAlreadyInUseException();
 			var user = new User() {
-				Login= login,
+				Login = login,
 				HashedPassword = hashedPassword,
 			};
 			user.UserEmailAddresses.Add(new UserEmailAddress {
@@ -89,6 +96,18 @@ namespace Darkengines.Authentication {
 
 			await ApplicationDbContext.Users.AddAsync(user);
 			await ApplicationDbContext.SaveChangesAsync();
+
+			var message = new MimeMessage() {
+				Sender = new MailboxAddress("Support", "support@darkengines.com"),
+				Subject = "Hello world!",
+				Body = new TextPart("plain") { Text = "Hello world!" },
+			};
+			message.To.Add(new MailboxAddress(email, email));
+
+			using var smtpClient = await SmtpClientFactory.CreateSmtpClient();
+			await smtpClient.SendAsync(message);
+			await smtpClient.DisconnectAsync(true);
+
 			return await BuildToken(user);
 		}
 		public async Task<string> Login(string email, string password) {
@@ -96,7 +115,7 @@ namespace Darkengines.Authentication {
 				.OrderByDescending(userEmailAddress => userEmailAddress.UserId)
 				.FirstOrDefaultAsync(userEmailAddress =>
 					userEmailAddress.IsVerified
-					&& userEmailAddress.HashedEmailAddress == ToLowerInvariantSHA256(email)
+					&& userEmailAddress.HashedEmailAddress.SequenceEqual(ToLowerInvariantSHA256(email))
 				);
 			if (userEmailAddress != null) {
 				byte[] hashedPassword = ToSHA256(password);

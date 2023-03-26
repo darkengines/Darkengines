@@ -24,6 +24,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using Darkengines.Users.Interceptors;
+using Darkengines.Mailing;
 
 namespace Darkengines {
 	public static class Extensions {
@@ -56,6 +57,7 @@ namespace Darkengines {
 			serviceCollection.AddData();
 			serviceCollection.AddExpressions();
 			serviceCollection.AddJsonSerializer();
+			serviceCollection.AddMailing(configuration);
 			serviceCollection.AddJwtAuthentication(options => configuration.GetSection("Authentication.Jwt").Bind(options));
 
 			return serviceCollection;
