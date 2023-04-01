@@ -1,4 +1,4 @@
-﻿using Comeet.Core.Data;
+﻿using Darkengines.Data;
 using Darkengines.Authentication.Entities;
 using Darkengines.Authentication.Jwt;
 using Darkengines.UserGroups.Entities;

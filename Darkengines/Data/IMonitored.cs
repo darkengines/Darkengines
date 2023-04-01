@@ -1,4 +1,4 @@
-﻿namespace Comeet.Core.Data {
+﻿namespace Darkengines.Data {
 	public interface IMonitored : ICreatedByOwner, ICreationDateOwner, IModificationByOwner, IModificationDateOwner {
 	}
 }

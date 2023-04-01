@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Comeet.Core.Data {
+namespace Darkengines.Data {
 	public interface IModificationDateOwner {
 		DateTimeOffset? ModifiedOn { get; set; }
 	}

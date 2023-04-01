@@ -1,4 +1,4 @@
-﻿using Comeet.Core.Data;
+﻿using Darkengines.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ namespace Darkengines.Users.Entities {
 		public string? EmailAddress { get; set; }
 		public byte[]? HashedEmailAddress { get; set; }
 		public Guid? Guid { get; set; }
+		public DateTimeOffset? GuidExpirationDate { get; set; }
 		public bool IsVerified { get; set; }
 		public int? CreatedById { get; set; }
 		public User? CreatedBy { get; set; }

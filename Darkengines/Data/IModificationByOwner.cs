@@ -1,7 +1,7 @@
 ﻿using Darkengines.Users.Entities;
 using System;
 
-namespace Comeet.Core.Data {
+namespace Darkengines.Data {
 	public interface IModificationByOwner {
 		int? ModifiedById { get; set; }
 		User? ModifiedBy { get; set; }
