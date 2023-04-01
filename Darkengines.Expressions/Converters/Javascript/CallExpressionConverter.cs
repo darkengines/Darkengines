@@ -67,7 +67,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
 						}
 						if (methodInfo == null) {
 							var cacheKey = new InvocationInfoCacheKey(methodName, memberSyntaxExpressionArgumentInfo, invocationArgumentInfos);
-							if (MethodInfoCache.TryGetValue(cacheKey, out methodInfo)) {
+							if (false && MethodInfoCache.TryGetValue(cacheKey, out methodInfo)) {
 								if (methodInfo.IsExtensionMethod()) {
 									invocationArgumentInfos = invocationArgumentInfos.Prepend(memberSyntaxExpressionArgumentInfo).ToArray();
 									memberExpression = null;

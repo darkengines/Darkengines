@@ -1,0 +1,12 @@
+﻿@model Darkengines.Users.Templates.Models.EmailAddressConfirmationModel;
+
+<html>
+<body>
+	<div>
+		Hello, click on the button bellow to verify your email address.
+	</div>
+	<div>
+		<a href="https://app.darkengines.com/verify/@Model.UserEmailAddress.Guid">Verify @Model.UserEmailAddress.EmailAddress</a>
+	</div>
+</body>
+</html>

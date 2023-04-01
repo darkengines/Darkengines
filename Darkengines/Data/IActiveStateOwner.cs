@@ -1,6 +1,6 @@
 ﻿using Darkengines.Users.Entities;
 
-namespace Comeet.Core.Data {
+namespace Darkengines.Data {
 	public interface IActiveStateOwner {
 		bool IsActive { get; set; }
 		DateTimeOffset? DeactivatedOn { get; set; }

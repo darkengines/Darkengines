@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Comeet.Core.Common {
+namespace Darkengines.Common {
 	public class NotFoundException : Exception {
 		public NotFoundException() {
 		}

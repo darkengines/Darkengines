@@ -4,6 +4,7 @@ using Darkengines.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Darkengines.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230329211241_UserEmailAddress.GuidExpirationDate")]
+    partial class UserEmailAddressGuidExpirationDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,8 +189,12 @@ namespace Darkengines.Migrations
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserEmailAddress", b =>
                 {
-                    b.Property<byte[]>("HashedEmailAddress")
-                        .HasColumnType("varbinary(900)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EmailAddress")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("CreatedById")
                         .HasColumnType("int");
@@ -195,16 +202,16 @@ namespace Darkengines.Migrations
                     b.Property<DateTimeOffset?>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("EmailAddress")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<Guid?>("Guid")
                         .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("GuidExpirationDate")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<byte[]>("HashedEmailAddress")
+                        .IsRequired()
+                        .HasColumnType("varbinary(900)");
 
                     b.Property<bool>("IsVerified")
                         .ValueGeneratedOnAdd()
@@ -217,16 +224,14 @@ namespace Darkengines.Migrations
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("HashedEmailAddress");
+                    b.HasKey("UserId", "EmailAddress");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("ModifiedById");
+                    b.HasIndex("HashedEmailAddress")
+                        .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ModifiedById");
 
                     b.ToTable("UserEmailAddress");
                 });
@@ -254,10 +259,6 @@ namespace Darkengines.Migrations
 
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("Lastname")
                         .IsRequired()

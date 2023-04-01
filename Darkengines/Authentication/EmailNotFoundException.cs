@@ -1,8 +1,8 @@
-﻿using Comeet.Core.Common;
+﻿using Darkengines.Common;
 using System;
 using System.Runtime.Serialization;
 
-namespace Comeet.Core.Authentication {
+namespace Darkengines.Authentication {
 	public class EmailNotFoundException : NotFoundException{
 
 		public EmailNotFoundException() { }
