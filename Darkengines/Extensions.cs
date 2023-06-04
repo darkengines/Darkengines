@@ -107,5 +107,8 @@ namespace Darkengines {
             }
             return hashedValue;
         }
+        public static bool Like(this string @string, string pattern) { 
+            return EF.Functions.Like(@string, pattern);
+        }
     }
 }

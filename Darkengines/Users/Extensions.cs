@@ -22,6 +22,7 @@ namespace Darkengines.Users {
             userEntityTypeBuilder.AsMonitored();
             userEntityTypeBuilder.AsActiveStateOwner();
             userEntityTypeBuilder.Ignore(user => user.Password);
+            userEntityTypeBuilder.Ignore(user => user.IsVerified);
             userEntityTypeBuilder.Property(user => user.Login).HasMaxLength(256).IsRequired();
             userEntityTypeBuilder.HasIndex(user => user.Login).IsUnique();
             userEntityTypeBuilder.Property(user => user.HashedPassword).IsRequired();

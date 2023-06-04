@@ -103,6 +103,7 @@ namespace Darkengines.Authentication {
                 );
             if (userEmailAddress == null || userEmailAddress.GuidExpirationDate < DateTimeOffset.UtcNow.Subtract(UserEmailAddressGuidTimeSpan)) throw new NotFoundException();
             userEmailAddress.IsVerified = true;
+            userEmailAddress.User.IsVerified = true;
             var token = await BuildToken(userEmailAddress.User);
             await ApplicationDbContext.SaveChangesAsync();
             return token;
@@ -158,11 +159,11 @@ namespace Darkengines.Authentication {
             var userEmailAddress = await ApplicationDbContext.UserEmailAddresses.Include(userEmailAddress => userEmailAddress.User)
                 .OrderByDescending(userEmailAddress => userEmailAddress.UserId)
                 .FirstOrDefaultAsync(userEmailAddress =>
-                    userEmailAddress.IsVerified
-                    && userEmailAddress.HashedEmailAddress.SequenceEqual(ToLowerInvariantSHA256(email))
+                    userEmailAddress.HashedEmailAddress.SequenceEqual(ToLowerInvariantSHA256(email))
                 );
             if (userEmailAddress != null) {
                 byte[] hashedPassword = ToSHA256(password);
+                userEmailAddress.User.IsVerified = userEmailAddress.IsVerified;
                 if (userEmailAddress.User.HashedPassword.SequenceEqual(hashedPassword)) return await BuildToken(userEmailAddress.User);
             }
             throw new InvalidCredentialException("Invalid credentials");

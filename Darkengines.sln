@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Darkengines.Expressions", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Darkengines.Expressions.Test", "Darkengines.Expressions.Test\Darkengines.Expressions.Test.csproj", "{9B0C2608-C7E0-4656-8B25-AE6C12D5E05C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Darkengines.Chat.Web", "Darkengines.Chat.Web\Darkengines.Chat.Web.csproj", "{3EF0DD01-E350-452D-8D38-08AA79BD6F95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Darkengines.Web", "Darkengines.Web\Darkengines.Web.csproj", "{3EF0DD01-E350-452D-8D38-08AA79BD6F95}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Darkengines", "Darkengines\Darkengines.csproj", "{B31DF65B-8EB2-46BB-B1B3-468321A72BF9}"
 EndProject

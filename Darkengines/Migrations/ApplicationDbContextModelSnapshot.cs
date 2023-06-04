@@ -42,7 +42,7 @@ namespace Darkengines.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Application");
+                    b.ToTable("Application", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Applications.Entities.UserApplication", b =>
@@ -57,7 +57,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserApplication");
+                    b.ToTable("UserApplication", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Authentication.Entities.UserPasswordResetRequest", b =>
@@ -88,7 +88,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("UserPasswordResetRequest");
+                    b.ToTable("UserPasswordResetRequest", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.UserGroups.Entities.UserGroup", b =>
@@ -106,7 +106,7 @@ namespace Darkengines.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserGroup");
+                    b.ToTable("UserGroup", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.UserGroups.Entities.UserUserGroup", b =>
@@ -124,7 +124,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("UserGroupId");
 
-                    b.ToTable("UserUserGroup");
+                    b.ToTable("UserUserGroup", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.User", b =>
@@ -181,7 +181,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserEmailAddress", b =>
@@ -228,7 +228,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserEmailAddress");
+                    b.ToTable("UserEmailAddress", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserProfile", b =>
@@ -276,7 +276,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("UserProfile");
+                    b.ToTable("UserProfile", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserSettings", b =>
@@ -302,7 +302,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("UserSettings");
+                    b.ToTable("UserSettings", (string)null);
                 });
 
             modelBuilder.Entity("Darkengines.Applications.Entities.UserApplication", b =>
