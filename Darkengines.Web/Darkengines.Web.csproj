@@ -27,7 +27,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Darkengines\Darkengines.csproj" />
 		<ProjectReference Include="..\Darkengines.Expressions\Darkengines.Expressions.csproj" />
-		<ProjectReference Include="..\Darkengines.Identity\Darkengines.Identity.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

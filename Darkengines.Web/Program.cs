@@ -1,5 +1,5 @@
 using Darkengines;
-using Darkengines.Chat.Web;
+using Darkengines.Web;
 using Darkengines;
 using Darkengines.Applications;
 using Darkengines.Authentication;
@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Serilog;
-using Darkengines.Identity;
 using Microsoft.AspNetCore.Builder;
 using System.Diagnostics;
 
@@ -51,7 +50,7 @@ applicationBuilder.Services
 		options.UseModel(model);
 		options.EnableSensitiveDataLogging();
 	})
-	.AddControllers().AddIdentity();
+	.AddControllers();
 
 var application = applicationBuilder.Build();
 

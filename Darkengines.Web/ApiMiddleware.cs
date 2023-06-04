@@ -12,7 +12,7 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.AspNetCore.SignalR.Protocol;
 
-namespace Darkengines.Chat.Web {
+namespace Darkengines.Web {
     //class UserPermission {
     //	public int Id { get; set; }
     //	public bool SelfPermission { get; set; }
