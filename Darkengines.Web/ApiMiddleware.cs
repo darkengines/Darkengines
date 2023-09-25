@@ -11,25 +11,25 @@ using System.Linq.Expressions;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Darkengines.Apis.FluentApi;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Darkengines.Web {
-    //class UserPermission {
-    //	public int Id { get; set; }
-    //	public bool SelfPermission { get; set; }
-    //	public bool HashedPasswordPermission { get; set; }
-    //}
     public class ApiMiddleware {
         protected RequestDelegate Next { get; }
         protected JsonSerializer JsonSerializer { get; }
         protected ConversionContext ConverterContext { get; }
         protected ModelProvider ModelProvider { get; }
         protected ILogger<ApiMiddleware> Logger { get; }
+        protected FluentApi FluentApi { get; }
 
         public ApiMiddleware(
             RequestDelegate next,
             JsonSerializer jsonSerializer,
             ConversionContext converterContext,
             ModelProvider modelProvider,
+            FluentApi fluentApi,
+            IModel model,
             ILogger<ApiMiddleware> logger
         ) {
             Next = next;
@@ -37,10 +37,11 @@ namespace Darkengines.Web {
             JsonSerializer = jsonSerializer;
             Logger = logger;
             var extensionTypes = new[] { typeof(Queryable), typeof(Enumerable), typeof(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions) };
-            var typeIdentifiers = new Dictionary<string, Type>() { };
+            var typeIdentifiers = model.GetEntityTypes().ToDictionary(entityType => entityType.ClrType.Name, entityType => entityType.ClrType);
             converterContext.TypeIdentifiers = typeIdentifiers;
             converterContext.ExtensionTypes = extensionTypes;
             ConverterContext = converterContext;
+            FluentApi = fluentApi;
         }
         public async Task InvokeAsync(
             HttpContext context,
@@ -56,9 +57,6 @@ namespace Darkengines.Web {
             });
 
             var identifiers = new Dictionary<string, Expression>() {
-                { "Numbers", Expression.Constant(Enumerable.Range(0, 100)) },
-                { nameof(ApplicationDbContext.Users), Expression.Constant(applicationDbContext.Users) },
-                { nameof(ApplicationDbContext.UserUserGroups), Expression.Constant(applicationDbContext.UserUserGroups) },
                 { nameof(ModelProvider), Expression.Constant(ModelProvider) },
                 { nameof(Authentication), Expression.Constant(authentication) },
                 { nameof(Mutation), Expression.Constant(mutation) }
@@ -74,46 +72,22 @@ namespace Darkengines.Web {
                     source = await reader.ReadToEndAsync();
                 }
             }
-            var javascriptParser = new JavaScriptParser(new ParserOptions() { Tokens = true });
-            var tree = javascriptParser.ParseScript(source, source).Body.First() as Esprima.Ast.ExpressionStatement;
-            var root = tree.Expression;
 
-            //var tree = CSharpSyntaxTree.ParseText(source);
-            //var root = await tree.GetRootAsync();
             var stopwatch = new Stopwatch();
+            var fluentApiContext = new FluentApiContext();
+            foreach (var identifier in identifiers) fluentApiContext.Identifiers.Add(identifier);
             stopwatch.Start();
-            var conversionResult = ConverterContext.Convert("Javascript", root, scope);
-            stopwatch.Stop();
-            Logger.LogInformation($"Input expression convertion duration: ${stopwatch.Elapsed}");
-            var expression = conversionResult.Expression!;
-            var result = default(object);
-            var hasResult = default(bool);
-
-            if (conversionResult.IsAsynchronous) {
-                var lambda = Expression.Lambda<Func<dynamic>>(expression);
-                var func = lambda.Compile();
-                hasResult = expression.Type != typeof(Task);
-                if (hasResult) {
-                    result = await func();
-                } else {
-                    await func();
-                }
-            } else {
-                var lambda = Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)));
-                var func = lambda.Compile();
-                hasResult = func.Method.ReturnType != typeof(void);
-                if (hasResult) {
-                    result = func();
-                } else {
-                    func();
-                }
-            }
-            if (hasResult) {
+            var result = await FluentApi.ExecuteAsync(source, fluentApiContext);
+            if (result.HasResult) {
                 using (var stringWriter = new StringWriter()) {
-                    JsonSerializer.Serialize(stringWriter, result);
+                    JsonSerializer.Serialize(stringWriter, result.Result);
+                    await context.Response.StartAsync();
                     await context.Response.WriteAsync(stringWriter.ToString());
                 }
             }
+            stopwatch.Stop();
+            Logger.LogInformation($"Request processed in ${stopwatch.Elapsed}");
+
             //await Next(context);
         }
 

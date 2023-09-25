@@ -27,6 +27,7 @@ using Darkengines.Users.Interceptors;
 using Darkengines.Mailing;
 using Darkengines.Templating;
 using Darkengines.Users.Templates.Views;
+using Darkengines.Apis.FluentApi;
 
 namespace Darkengines {
     public static class Extensions {
@@ -39,8 +40,11 @@ namespace Darkengines {
                 modelBuilder = modelBuilder.ConfigureUserGroups();
                 modelBuilder = modelBuilder.ConfigureAuthentication();
                 modelBuilder = modelBuilder.ConfigureApplications();
+                modelBuilder = modelBuilder.AddModels();
+
                 var model = modelBuilder.Model.FinalizeModel();
                 model = modelRuntimeInitializer.Initialize(model, isDesignTime);
+
                 return model;
             });
             return serviceCollection;
@@ -58,6 +62,7 @@ namespace Darkengines {
             serviceCollection.AddModels();
             serviceCollection.AddData();
             serviceCollection.AddExpressions();
+            serviceCollection.AddFluentApi();
             serviceCollection.AddJsonSerializer();
             serviceCollection.AddMailing(configuration);
             serviceCollection.AddTemplating(renderEngineBuilder => {
