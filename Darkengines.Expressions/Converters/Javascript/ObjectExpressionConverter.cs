@@ -29,7 +29,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
 				Property = property,
 				ValueExpression = converterContext.Convert(Language, ((Esprima.Ast.Property)property).Value, scope)
 			}).ToArray();
-			var tuples = propertyValueExpressions.Select(propertyValueExpression => new Tuple<Type, string>(propertyValueExpression.ValueExpression.Expression!.Type, ((Esprima.Ast.Identifier)((Esprima.Ast.Property)propertyValueExpression.Property).Key).Name!)).ToArray();
+			var tuples = propertyValueExpressions.Select(propertyValueExpression => new Tuple<Type, string>(propertyValueExpression.ValueExpression.Expression!.Type, ((Esprima.Ast.Literal)((Esprima.Ast.Property)propertyValueExpression.Property).Key).StringValue!)).ToArray();
 			var set = new HashSet<Tuple<Type, string>>(tuples);
 			if (!Cache.TryGetValue(set, out var anonymousType)) {
 				anonymousType = AnonymousTypeBuilder.BuildAnonymousType(set);
@@ -38,7 +38,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
 			var newExpression = Expression.New(anonymousType.GetConstructor(new Type[0])!);
 			var initializationExpression = Expression.MemberInit(
 				newExpression,
-				propertyValueExpressions.Select(pve => Expression.Bind(anonymousType.GetProperty(((Esprima.Ast.Identifier)((Esprima.Ast.Property)pve.Property).Key).Name!)!, pve.ValueExpression.Expression!))
+				propertyValueExpressions.Select(pve => Expression.Bind(anonymousType.GetProperty(((Esprima.Ast.Literal)((Esprima.Ast.Property)pve.Property).Key).StringValue!)!, pve.ValueExpression.Expression!))
 			);
 			return new ConverterResult(initializationExpression);
 		}

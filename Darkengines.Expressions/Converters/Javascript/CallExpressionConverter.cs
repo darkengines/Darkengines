@@ -119,6 +119,19 @@ namespace Darkengines.Expressions.Converters.Javascript {
                     var expression = Expression.Call(memberExpression, methodInfo, argumentExpressions);
                     return new ConverterResult(expression, isAsync);
                 }
+            } else {
+                if (node.Callee is Esprima.Ast.Identifier calleeIdentifier) {
+                    if (calleeIdentifier.Name == "cast") {
+                        var typeNameArgument = node.Arguments[0];
+                        if (typeNameArgument is Esprima.Ast.Literal typeNameLiteral) {
+                            var typeName = typeNameLiteral.StringValue;
+                            var valueExpression = syntaxNodeConverterContext.Convert(Language, node.Arguments[1], scope, conversionArgument);
+                            var castType = syntaxNodeConverterContext.ResolveTypeIdentifier(typeName) ?? Type.GetType(typeName);
+                            var result = Expression.Convert(valueExpression.Expression, castType);
+                            return new ConverterResult(result);
+                        }
+                    }
+                }
             }
             throw new NotImplementedException();
         }

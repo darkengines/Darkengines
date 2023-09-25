@@ -42,7 +42,7 @@ namespace Darkengines.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Application", (string)null);
+                    b.ToTable("Application");
                 });
 
             modelBuilder.Entity("Darkengines.Applications.Entities.UserApplication", b =>
@@ -57,7 +57,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserApplication", (string)null);
+                    b.ToTable("UserApplication");
                 });
 
             modelBuilder.Entity("Darkengines.Authentication.Entities.UserPasswordResetRequest", b =>
@@ -88,7 +88,156 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("UserPasswordResetRequest", (string)null);
+                    b.ToTable("UserPasswordResetRequest");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Entity", b =>
+                {
+                    b.Property<string>("ModelName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("ModelName", "Name");
+
+                    b.ToTable("Entity");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.ForeignKey", b =>
+                {
+                    b.Property<string>("ModelName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("ModelName", "Name");
+
+                    b.ToTable("ForeignKey");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.ForeignKeyProperty", b =>
+                {
+                    b.Property<string>("ModelName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ForeignKeyName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PrincipalEntityName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PrincipalPropertyName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("DependentEntityName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("DependentPropertyName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("DependentPropertyEntityName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("DependentPropertyModelName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PrincipalPropertyEntityName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PrincipalPropertyModelName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("ModelName", "ForeignKeyName", "PrincipalEntityName", "PrincipalPropertyName", "DependentEntityName", "DependentPropertyName");
+
+                    b.HasIndex("ModelName", "DependentEntityName");
+
+                    b.HasIndex("ModelName", "PrincipalEntityName");
+
+                    b.HasIndex("DependentPropertyModelName", "DependentPropertyEntityName", "DependentPropertyName");
+
+                    b.HasIndex("PrincipalPropertyModelName", "PrincipalPropertyEntityName", "PrincipalPropertyName");
+
+                    b.ToTable("ForeignKeyProperty");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Member", b =>
+                {
+                    b.Property<string>("ModelName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("EntityName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("EntityModelName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("MemberType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ModelName", "EntityName", "Name");
+
+                    b.HasIndex("EntityModelName", "EntityName");
+
+                    b.ToTable("Member");
+
+                    b.HasDiscriminator<string>("MemberType").HasValue("Member");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Model", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Model");
                 });
 
             modelBuilder.Entity("Darkengines.UserGroups.Entities.UserGroup", b =>
@@ -106,7 +255,7 @@ namespace Darkengines.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserGroup", (string)null);
+                    b.ToTable("UserGroup");
                 });
 
             modelBuilder.Entity("Darkengines.UserGroups.Entities.UserUserGroup", b =>
@@ -124,7 +273,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("UserGroupId");
 
-                    b.ToTable("UserUserGroup", (string)null);
+                    b.ToTable("UserUserGroup");
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.User", b =>
@@ -181,7 +330,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserEmailAddress", b =>
@@ -228,7 +377,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserEmailAddress", (string)null);
+                    b.ToTable("UserEmailAddress");
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserProfile", b =>
@@ -276,7 +425,7 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("UserProfile", (string)null);
+                    b.ToTable("UserProfile");
                 });
 
             modelBuilder.Entity("Darkengines.Users.Entities.UserSettings", b =>
@@ -302,7 +451,77 @@ namespace Darkengines.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("UserSettings", (string)null);
+                    b.ToTable("UserSettings");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Navigation", b =>
+                {
+                    b.HasBaseType("Darkengines.Models.Entities.Member");
+
+                    b.Property<string>("ForeignKeyModelName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ForeignKeyName")
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasIndex("ForeignKeyModelName", "ForeignKeyName");
+
+                    b.HasIndex("ModelName", "ForeignKeyName");
+
+                    b.HasDiscriminator().HasValue("Navigation");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Property", b =>
+                {
+                    b.HasBaseType("Darkengines.Models.Entities.Member");
+
+                    b.Property<string>("Format")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsAutoGenerated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsNullable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsNullable");
+
+                    b.Property<int>("MaximumLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumLength")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasDiscriminator().HasValue("Property");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Collection", b =>
+                {
+                    b.HasBaseType("Darkengines.Models.Entities.Navigation");
+
+                    b.HasDiscriminator().HasValue("Collection");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Reference", b =>
+                {
+                    b.HasBaseType("Darkengines.Models.Entities.Navigation");
+
+                    b.Property<bool>("IsNullable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsNullable");
+
+                    b.HasDiscriminator().HasValue("Reference");
                 });
 
             modelBuilder.Entity("Darkengines.Applications.Entities.UserApplication", b =>
@@ -347,6 +566,82 @@ namespace Darkengines.Migrations
                     b.Navigation("ModifiedBy");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Entity", b =>
+                {
+                    b.HasOne("Darkengines.Models.Entities.Model", "Model")
+                        .WithMany("Entities")
+                        .HasForeignKey("ModelName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Model");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.ForeignKey", b =>
+                {
+                    b.HasOne("Darkengines.Models.Entities.Model", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Model");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.ForeignKeyProperty", b =>
+                {
+                    b.HasOne("Darkengines.Models.Entities.Entity", "DependentEntity")
+                        .WithMany()
+                        .HasForeignKey("ModelName", "DependentEntityName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Darkengines.Models.Entities.ForeignKey", "ForeignKey")
+                        .WithMany("Properties")
+                        .HasForeignKey("ModelName", "ForeignKeyName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Darkengines.Models.Entities.Entity", "PrincipalEntity")
+                        .WithMany()
+                        .HasForeignKey("ModelName", "PrincipalEntityName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Darkengines.Models.Entities.Property", "DependentProperty")
+                        .WithMany()
+                        .HasForeignKey("DependentPropertyModelName", "DependentPropertyEntityName", "DependentPropertyName");
+
+                    b.HasOne("Darkengines.Models.Entities.Property", "PrincipalProperty")
+                        .WithMany()
+                        .HasForeignKey("PrincipalPropertyModelName", "PrincipalPropertyEntityName", "PrincipalPropertyName");
+
+                    b.Navigation("DependentEntity");
+
+                    b.Navigation("DependentProperty");
+
+                    b.Navigation("ForeignKey");
+
+                    b.Navigation("PrincipalEntity");
+
+                    b.Navigation("PrincipalProperty");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Member", b =>
+                {
+                    b.HasOne("Darkengines.Models.Entities.Entity", null)
+                        .WithMany("Members")
+                        .HasForeignKey("EntityModelName", "EntityName");
+
+                    b.HasOne("Darkengines.Models.Entities.Entity", "Entity")
+                        .WithMany()
+                        .HasForeignKey("ModelName", "EntityName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Entity");
                 });
 
             modelBuilder.Entity("Darkengines.UserGroups.Entities.UserUserGroup", b =>
@@ -467,9 +762,40 @@ namespace Darkengines.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Darkengines.Models.Entities.Navigation", b =>
+                {
+                    b.HasOne("Darkengines.Models.Entities.ForeignKey", null)
+                        .WithMany("Navigations")
+                        .HasForeignKey("ForeignKeyModelName", "ForeignKeyName");
+
+                    b.HasOne("Darkengines.Models.Entities.ForeignKey", "ForeignKey")
+                        .WithMany()
+                        .HasForeignKey("ModelName", "ForeignKeyName")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ForeignKey");
+                });
+
             modelBuilder.Entity("Darkengines.Applications.Entities.Application", b =>
                 {
                     b.Navigation("UserApplications");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Entity", b =>
+                {
+                    b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.ForeignKey", b =>
+                {
+                    b.Navigation("Navigations");
+
+                    b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("Darkengines.Models.Entities.Model", b =>
+                {
+                    b.Navigation("Entities");
                 });
 
             modelBuilder.Entity("Darkengines.UserGroups.Entities.UserGroup", b =>

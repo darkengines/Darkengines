@@ -20,15 +20,30 @@ namespace Darkengines.Expressions.Converters {
 			if (Cache.TryGetValue(propertySet, out anonymousType)) return anonymousType;
 			var dynamicTypeName = typeName ?? Guid.NewGuid().ToString();
 			var typeBuilder = ModuleBuilder.DefineType(dynamicTypeName, TypeAttributes.Public);
-
-			foreach (var tuple in propertySet) {
-				EmitAutoProperty(typeBuilder, tuple.Item2, tuple.Item1);
-			}
+			var result = propertySet.Select(tuple => {
+				var propertyResult = EmitAutoProperty(typeBuilder, tuple.Item2, tuple.Item1);
+				return (propertyType: tuple.Item1, propertyName: tuple.Item2, propertyBuilder: propertyResult.Item2, fieldBuilder: propertyResult.Item1);
+			}).ToArray();
+			EmitConstructor(typeBuilder, result);
 			var dynamicType = typeBuilder.CreateType();
 			Cache[propertySet] = dynamicType;
 			return dynamicType;
 		}
-		protected PropertyInfo EmitAutoProperty(TypeBuilder typeBuilder, string propertyName, Type propertyType) {
+
+        private void EmitConstructor(TypeBuilder typeBuilder, (Type propertyType, string propertyName, PropertyBuilder propertyBuilder, FieldBuilder fieldBuilder)[] properties) {
+            var collectionGenericConstructor = typeof(ICollection<>).GetConstructor(Array.Empty<Type>())!;
+            var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, Array.Empty<Type>());
+            var generator = constructorBuilder.GetILGenerator();
+            foreach (var property in properties.Where(property => property.propertyType != typeof(string) && typeof(ICollection).IsAssignableFrom(property.propertyType))) {
+                var underlyingPropertyType = property.Item1.GetEnumerableUnderlyingType();
+                var collectionConstructor = TypeBuilder.GetConstructor(underlyingPropertyType, collectionGenericConstructor);
+                generator.Emit(OpCodes.Newobj, collectionConstructor);
+				generator.Emit(OpCodes.Stfld, property.fieldBuilder);
+            };
+			generator.Emit(OpCodes.Ret);
+        }
+
+        protected (FieldBuilder, PropertyBuilder) EmitAutoProperty(TypeBuilder typeBuilder, string propertyName, Type propertyType) {
 			if (typeof(string) != propertyType && typeof(IEnumerable).IsAssignableFrom(propertyType)) {
 				propertyType = typeof(IEnumerable<>).MakeGenericType(propertyType.GetEnumerableUnderlyingType());
 			}
@@ -58,7 +73,7 @@ namespace Darkengines.Expressions.Converters {
 			setGenerator.Emit(OpCodes.Ret);
 			propertyBuilder.SetSetMethod(setMethod);
 
-			return propertyBuilder;
+			return (backingField, propertyBuilder);
 		}
 	}
 }
