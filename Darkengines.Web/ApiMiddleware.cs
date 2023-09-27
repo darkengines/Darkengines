@@ -29,7 +29,6 @@ namespace Darkengines.Web {
             ConversionContext converterContext,
             ModelProvider modelProvider,
             FluentApi fluentApi,
-            IModel model,
             ILogger<ApiMiddleware> logger
         ) {
             Next = next;
@@ -37,8 +36,6 @@ namespace Darkengines.Web {
             JsonSerializer = jsonSerializer;
             Logger = logger;
             var extensionTypes = new[] { typeof(Queryable), typeof(Enumerable), typeof(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions) };
-            var typeIdentifiers = model.GetEntityTypes().ToDictionary(entityType => entityType.ClrType.Name, entityType => entityType.ClrType);
-            converterContext.TypeIdentifiers = typeIdentifiers;
             converterContext.ExtensionTypes = extensionTypes;
             ConverterContext = converterContext;
             FluentApi = fluentApi;
@@ -47,8 +44,13 @@ namespace Darkengines.Web {
             HttpContext context,
             ApplicationDbContext applicationDbContext,
             Authentication.Authentication authentication,
+            IModel model,
             Mutation mutation
         ) {
+
+            var typeIdentifiers = model.GetEntityTypes().ToDictionary(entityType => entityType.ClrType.Name, entityType => entityType.ClrType);
+            ConverterContext.TypeIdentifiers = typeIdentifiers;
+
             var source = context.Request.Path.Value;
             if (!string.IsNullOrWhiteSpace(source)) source = source.Substring(1);
 

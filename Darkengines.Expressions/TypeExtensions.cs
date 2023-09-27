@@ -71,8 +71,11 @@ namespace Darkengines.Expressions {
                         }
                         if (typeof(Expression).IsAssignableFrom(parameterType)) parameterType = parameterType.GetGenericArguments()[0];
                         //if (candidateParameterArgumentTuple.ArgumentInfo.GenericType.GetGenericParameters().Count() != parameterType.GenericTypeArguments.Length) return null;
-                        candidateParameterArgumentTuple.ArgumentInfo.GenericType = parameterType;
+                        if (candidateParameterArgumentTuple.ArgumentInfo.GenericType.GenericAssignableFrom(parameterType)) {
+                            candidateParameterArgumentTuple.ArgumentInfo.GenericType = parameterType;
+                        }
                         var argumentType = candidateParameterArgumentTuple.ArgumentInfo.GenericType!.InferGenericArguments(parameterType, inferredGenericArguments);
+                        if (argumentType == null) return null;
                         candidateParameterArgumentTuple.ArgumentInfo.ConversionResult = candidateParameterArgumentTuple.ArgumentInfo.Converter.Convert(
                             candidateParameterArgumentTuple.ArgumentInfo.Node,
                             candidateParameterArgumentTuple.ArgumentInfo.ConverterContext,
@@ -118,6 +121,7 @@ namespace Darkengines.Expressions {
             if (type.ContainsGenericParameters) {
                 var typeGenericArguments = type.GetGenericArguments();
                 var targetGenericArguments = target.IsArray ? new[] { target.GetElementType()! } : target.GetGenericArguments();
+                if (typeGenericArguments.Length != targetGenericArguments.Length) return null;
                 var genericArguments = typeGenericArguments.Zip(targetGenericArguments)
                 .Select(tuple => tuple.First.InferGenericArguments(tuple.Second, inferredTypes)).ToArray();
                 return type.GetGenericTypeDefinition().MakeGenericType(genericArguments);
