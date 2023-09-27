@@ -12,3 +12,4 @@ namespace Darkengines.UserGroups.Rules
 		}
 	}
 }
+	
