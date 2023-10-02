@@ -1,7 +1,4 @@
-﻿using Darkengines.Authentication;
-using Darkengines.Data;
-using Darkengines.Models;
-using Darkengines.Users.Entities;
+﻿using Darkengines.Users.Entities;
 using Darkengines.Expressions;
 using Darkengines.Expressions.Converters;
 using Esprima;
@@ -13,6 +10,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Darkengines.Apis.FluentApi;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Darkengines.Models;
+using Darkengines.Data;
 
 namespace Darkengines.Web {
     public class ApiMiddleware {
@@ -35,7 +34,7 @@ namespace Darkengines.Web {
             ModelProvider = modelProvider;
             JsonSerializer = jsonSerializer;
             Logger = logger;
-            var extensionTypes = new[] { typeof(Queryable), typeof(Enumerable), typeof(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions) };
+            var extensionTypes = new[] { typeof(Queryable), typeof(Enumerable), typeof(Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions), typeof(Expressions.StringExtensions) };
             converterContext.ExtensionTypes = extensionTypes;
             ConverterContext = converterContext;
             FluentApi = fluentApi;
@@ -43,7 +42,7 @@ namespace Darkengines.Web {
         public async Task InvokeAsync(
             HttpContext context,
             ApplicationDbContext applicationDbContext,
-            Authentication.Authentication authentication,
+            Darkengines.Authentication.Authentication authentication,
             IModel model,
             Mutation mutation
         ) {

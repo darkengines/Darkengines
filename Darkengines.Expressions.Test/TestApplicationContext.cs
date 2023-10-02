@@ -1,5 +1,4 @@
 ﻿using Darkengines.Applications;
-using Darkengines.Data;
 using Darkengines.Users.Entities;
 using Darkengines.Expressions.Security;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -9,9 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Darkengines.Data;
 
-namespace Darkengines.Test {
-	public class TestApplicationContext {
+namespace Darkengines.Test
+{
+    public class TestApplicationContext {
 		public ApplicationInitializer ApplicationInitializer { get; }
 		public IEnumerable<IRuleMap> RuleMaps { get; }
 		public ApplicationDbContext ApplicationDbContext { get; }

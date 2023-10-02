@@ -11,8 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Darkengines.Test {
-	public static partial class Extensions {
+namespace Darkengines.Test
+{
+    public static partial class Extensions {
 		public static IServiceCollection AddTestApplicationContext(this IServiceCollection serviceCollection) {
 
 			serviceCollection.AddSingleton<ApplicationInitializationContext>()

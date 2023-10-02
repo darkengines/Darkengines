@@ -1,4 +1,6 @@
-﻿using Darkengines.Models.Entities;
+﻿using Darkengines.Expressions.Security;
+using Darkengines.Models.Entities;
+using Darkengines.Models.Rules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RazorLight.Extensions;
@@ -6,7 +8,9 @@ using RazorLight.Extensions;
 namespace Darkengines.Models {
     public static class Extensions {
         public static IServiceCollection AddModels(this IServiceCollection serviceCollection) {
-            return serviceCollection.AddSingleton<ModelProvider>();
+            return serviceCollection.AddSingleton<ModelProvider>()
+                .AddSingleton<IRuleMap, ModelRule>()
+                .AddSingleton<IRuleMap, EntityRule>();
         }
         public static ModelBuilder AddModels(this ModelBuilder modelBuilder) {
             var modelEntityBuilder = modelBuilder.Entity<Model>();

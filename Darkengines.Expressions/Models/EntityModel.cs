@@ -3,6 +3,7 @@
 namespace Darkengines.Expressions.Models {
 	public class EntityModel {
 		public string Name { get; set; }
+		public string FullName { get; set; }
 		public string[] Interfaces { get; set; }
 		public string DisplayTypeName { get; set; }
 		public string[] Namespace { get; set; }
