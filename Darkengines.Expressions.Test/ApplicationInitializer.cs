@@ -1,6 +1,5 @@
-﻿using Darkengines.Applications.Entities;
-using Darkengines.Authentication;
-using Darkengines.Data;
+﻿using Darkengines.Data;
+using Darkengines.Applications.Entities;
 using Darkengines.Test;
 using Darkengines.UserGroups.Entities;
 using Darkengines.Users;
@@ -19,8 +18,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Darkengines.Test {
-	public class ApplicationInitializer {
+namespace Darkengines.Test
+{
+    public class ApplicationInitializer {
 		protected ApplicationDbContext ApplicationDbContext { get; }
 		public ApplicationInitializer(ApplicationDbContext applicationDbContext) {
 			ApplicationDbContext = applicationDbContext;
@@ -48,7 +48,7 @@ namespace Darkengines.Test {
 				};
 				random.NextBytes(user.HashedPassword);
 				var emailAddress = $"slayer{index}@uac.com";
-				var hashedEmailAddress = Authentication.Authentication.ToLowerInvariantSHA256(emailAddress);
+				var hashedEmailAddress = Darkengines.Authentication.Authentication.ToLowerInvariantSHA256(emailAddress);
 				user.UserEmailAddresses.Add(new UserEmailAddress { EmailAddress = emailAddress, HashedEmailAddress = hashedEmailAddress, User = user });
 				return user;
 			}).ToArray();

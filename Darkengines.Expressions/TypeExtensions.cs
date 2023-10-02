@@ -58,10 +58,11 @@ namespace Darkengines.Expressions {
                 }).Where(invocationInfo => invocationInfo != null);
             return invocationInfos!;
         }
-        public static InvocationInfo? FindMethodInfo(this IEnumerable<InvocationInfo> invocationInfos, ConverterScope scope) {
-            var invocationInfo = invocationInfos.FirstOrDefault(invocationInfo => {
-                var inferredGenericArguments = new Dictionary<Type, Type>();
-                var argumentTypes = invocationInfo.ArgumentInfos.Zip(invocationInfo.ParameterInfos, (first, second) => (ArgumentInfo: first, ParameterInfo: second))
+        public static (InvocationInfo invocationInfo, IDictionary<Type, Type> inferredGenericArguments)? FindMethodInfo(this IEnumerable<InvocationInfo> invocationInfos, ConverterScope scope, Dictionary<Type, Type> inferredGenericArguments) {
+            var invocationInfo = invocationInfos
+                .Select(invocationInfo => (invocationInfo, inferredGenericArguments: new Dictionary<Type, Type>()))
+                .FirstOrDefault(tuple => {
+                var argumentTypes = tuple.invocationInfo.ArgumentInfos.Zip(tuple.invocationInfo.ParameterInfos, (first, second) => (ArgumentInfo: first, ParameterInfo: second))
                 .Select(candidateParameterArgumentTuple => {
                     if (candidateParameterArgumentTuple.ArgumentInfo.ConversionResult == null) {
                         var parameterType = candidateParameterArgumentTuple.ParameterInfo.ParameterType;
@@ -81,7 +82,10 @@ namespace Darkengines.Expressions {
                             candidateParameterArgumentTuple.ArgumentInfo.ConverterContext,
                             scope,
                             new ConversionArgument() {
-                                GenericArguments = genericArguments.Select(ga => inferredGenericArguments[ga]).ToArray(),
+                                GenericArguments = genericArguments.Select(ga => {
+                                    if (inferredGenericArguments.TryGetValue(ga, out var argument)) return argument;
+                                    return ga;
+                                }).ToArray(),
                                 ExpectedType = argumentType
                             }
                         );
@@ -92,6 +96,7 @@ namespace Darkengines.Expressions {
                         //candidateParameterArgumentTuple.ArgumentInfo.GenericType = parameterType;
                         //var argumentType = candidateParameterArgumentTuple.ArgumentInfo.GenericType!.InferGenericArguments(parameterType, inferredGenericArguments);
                         var argumentType = candidateParameterArgumentTuple.ParameterInfo.ParameterType.InferGenericArguments(candidateParameterArgumentTuple.ArgumentInfo.ConversionResult!.Expression!.Type, inferredGenericArguments);
+                        if (argumentType == null) return null;
                         candidateParameterArgumentTuple.ArgumentInfo.ConversionResult = candidateParameterArgumentTuple.ArgumentInfo.Converter.Convert(
                             candidateParameterArgumentTuple.ArgumentInfo.Node,
                             candidateParameterArgumentTuple.ArgumentInfo.ConverterContext,
@@ -105,9 +110,9 @@ namespace Darkengines.Expressions {
                         return argumentType;
                     }
                 }).ToArray();
-                if (invocationInfo.MethodInfo.IsGenericMethod) {
-                    var genericArguments = invocationInfo.MethodInfo.GetGenericArguments().Select(genericArgument => inferredGenericArguments[genericArgument]).ToArray();
-                    invocationInfo.MethodInfo = invocationInfo.MethodInfo.MakeGenericMethod(genericArguments);
+                if (tuple.invocationInfo.MethodInfo.IsGenericMethod) {
+                    var genericArguments = tuple.invocationInfo.MethodInfo.GetGenericArguments().Select(genericArgument => inferredGenericArguments[genericArgument]).ToArray();
+                    tuple.invocationInfo.MethodInfo = tuple.invocationInfo.MethodInfo.MakeGenericMethod(genericArguments);
                 }
                 return argumentTypes.All(argumentType => argumentType != null);
             });
@@ -119,6 +124,12 @@ namespace Darkengines.Expressions {
                 return target;
             }
             if (type.ContainsGenericParameters) {
+                if (type.IsInterface) {
+                    target = ((TypeInfo)target).ImplementedInterfaces.FirstOrDefault(@interface => {
+                        return @interface.IsGenericType && @interface.GetGenericTypeDefinition() == type.GetGenericTypeDefinition();
+                    }, null) ?? target;
+                }
+
                 var typeGenericArguments = type.GetGenericArguments();
                 var targetGenericArguments = target.IsArray ? new[] { target.GetElementType()! } : target.GetGenericArguments();
                 if (typeGenericArguments.Length != targetGenericArguments.Length) return null;

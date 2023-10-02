@@ -1,10 +1,6 @@
 using Darkengines;
 using Darkengines.Web;
 using Darkengines;
-using Darkengines.Applications;
-using Darkengines.Authentication;
-using Darkengines.Authentication.Jwt;
-using Darkengines.Data;
 using Darkenginess.Security;
 using Darkengines.Web;
 using Microsoft.AspNetCore.Diagnostics;
@@ -18,6 +14,10 @@ using Serilog;
 using Microsoft.AspNetCore.Builder;
 using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
+using Darkengines.Applications;
+using Darkengines.Data;
+using Darkengines.Authentication;
+using Darkengines.Authentication.Jwt;
 
 var applicationBuilder = WebApplication.CreateBuilder(args);
 Console.WriteLine($"Environment: {applicationBuilder.Environment.EnvironmentName}");

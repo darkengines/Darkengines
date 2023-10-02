@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Darkengines.Expressions.Converters.Javascript {
+    public delegate Expression ExpressionResover(MethodInfo methodInfo, Expression? memberExpression, IEnumerable<Expression> argumentExpressions);
     public class CallExpressionConverter : JavascriptExpressionConverter<Esprima.Ast.CallExpression> {
         protected IDictionary<InvocationInfoCacheKey, MethodInfo> MethodInfoCache { get; }
+        public ExpressionResover ExpressionResover { get; set; }
         public CallExpressionConverter() : base() {
             MethodInfoCache = new Dictionary<InvocationInfoCacheKey, MethodInfo>();
+            ExpressionResover = ResolveExpression;
+        }
+        public Expression ResolveExpression(MethodInfo methodInfo, Expression? memberExpression, IEnumerable<Expression> argumentExpressions) {
+            var expression = Expression.Call(memberExpression, methodInfo, argumentExpressions);
+            return expression;
         }
         public override ConverterResult Convert(Esprima.Ast.CallExpression node, ConversionContext syntaxNodeConverterContext, ConverterScope scope, ConversionArgument? conversionArgument) {
             var type = default(Type);
@@ -92,11 +100,13 @@ namespace Darkengines.Expressions.Converters.Javascript {
                                     return argumentExpression;
                                 }).ToArray();
                             } else {
+                                var inferredGenericArguments = new Dictionary<Type, Type>();
                                 var invocationInfo = default(InvocationInfo);
                                 var invocationInfos = syntaxNodeConverterContext.ExtensionTypes.Prepend(type).SelectMany(
                                     type => type.FindMethodInfos(methodName, memberSyntaxExpressionArgumentInfo, invocationArgumentInfos).ToArray()
                                 );
-                                invocationInfo = invocationInfos.FindMethodInfo(scope);
+                                var result = invocationInfos.FindMethodInfo(scope, inferredGenericArguments);
+                                invocationInfo = result.Value.invocationInfo;
                                 if (invocationInfo != null) {
                                     if (false && !MethodInfoCache.ContainsKey(cacheKey)) {
                                         MethodInfoCache[cacheKey] = invocationInfo.MethodInfo;
@@ -116,7 +126,7 @@ namespace Darkengines.Expressions.Converters.Javascript {
                     }
                     if (methodInfo == null) throw (new InvalidOperationException($"Failed to resolve MethodInfo for expression {node.Location.Source}."));
                     var isAsync = methodInfo.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
-                    var expression = Expression.Call(memberExpression, methodInfo, argumentExpressions);
+                    var expression = ExpressionResover(methodInfo, memberExpression, argumentExpressions);
                     return new ConverterResult(expression, isAsync);
                 }
             } else {

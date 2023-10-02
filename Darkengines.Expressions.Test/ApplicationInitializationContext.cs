@@ -1,16 +1,17 @@
-﻿using Darkengines.Data;
-using Darkengines.Users.Entities;
-using Darkengines.Users;
+﻿using Darkengines.Users.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using Darkengines.Users;
+using Darkengines.Data;
 using Darkengines.Authentication;
 
-namespace Darkengines.Test {
-	public static partial class Extensions {
+namespace Darkengines.Test
+{
+    public static partial class Extensions {
 		public class ApplicationInitializationContext : IIdentityProvider {
 			protected IConfiguration Configuration { get; }
 			protected IModel Model { get; }
@@ -54,7 +55,7 @@ namespace Darkengines.Test {
 					var emailAddress = "root@darkengines.com";
 					root.UserEmailAddresses.Add(new UserEmailAddress {
 						EmailAddress = emailAddress,
-						HashedEmailAddress = Authentication.Authentication.ToLowerInvariantSHA256(emailAddress),
+						HashedEmailAddress = Darkengines.Authentication.Authentication.ToLowerInvariantSHA256(emailAddress),
 						IsVerified = true,
 					});
 					root.UserProfile = new UserProfile {
