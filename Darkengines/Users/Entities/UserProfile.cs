@@ -1,4 +1,5 @@
 ﻿using Darkengines.Data;
+using Darkengines.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Darkengines.Users.Entities {
         public string? DisplayName { get; set; }
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
+        [DisplayTypeName("ImageUrl")]
         public string? ImageUrl { get; set; }
         public Gender? Gender { get; set; }
         public User User { get; set; }
