@@ -2,6 +2,7 @@
 
 namespace Darkengines.Users.Templates.Models {
     public class EmailAddressConfirmationModel {
-        public UserEmailAddress UserEmailAddress { get; set; }
-    }
+        public required UserEmailAddress UserEmailAddress { get; set; }
+		public required Uri EmailAddressConfirmationUri { get; set; }
+	}
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Darkengines.Users.Templates.Views {
-	public class EmailAddressConfirmation {
+	public class UserPasswordResetToken {
 		
 	}
 }

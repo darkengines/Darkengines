@@ -1,20 +1,19 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
-using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Cryptography;
 
 namespace Darkengines.Authentication.Jwt {
 	public class JwtAuthenticationConfiguration {
 		protected AuthenticationOptions Options { get; }
-		public JwtHeader JwtHeader { get; }
 		protected SymmetricSecurityKey IssuerSigningKey { get; }
-		protected SigningCredentials SigningCredentials { get; }
-		public JwtSecurityTokenHandler JwtSecurityTokenHandler { get; }
+		public SigningCredentials SigningCredentials { get; }
+		public JsonWebTokenHandler JwtSecurityTokenHandler { get; }
 		public TokenValidationParameters Parameters { get; }
 		public JwtAuthenticationConfiguration(IOptions<AuthenticationOptions> options) {
 			Options = options.Value;
@@ -33,8 +32,7 @@ namespace Darkengines.Authentication.Jwt {
 					var pem = (AsymmetricKeyParameter)pemReader.ReadObject();
 					var publicKeyParams = (RsaKeyParameters)pem;
 					var publicRsa = RSA.Create(DotNetUtilities.ToRSAParameters(publicKeyParams));
-					JwtHeader = new JwtHeader(SigningCredentials);
-					JwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+					JwtSecurityTokenHandler = new JsonWebTokenHandler();
 					Parameters = new TokenValidationParameters {
 						ValidateAudience = false,
 						ValidIssuer = "darkengines.com",

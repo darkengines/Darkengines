@@ -9,15 +9,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Darkengines.Authentication.Jwt {
 	public class JwtAuthenticationMiddleware {
 		protected JwtAuthenticationConfiguration JwtAuthenticationConfiguration { get; }
+		protected JsonSerializer JsonSerializer { get; }
 		RequestDelegate Next { get; }
 		public JwtAuthenticationMiddleware(
 			RequestDelegate next,
-			JwtAuthenticationConfiguration jwtAuthenticationConfiguration
+			JwtAuthenticationConfiguration jwtAuthenticationConfiguration,
+			JsonSerializer jsonSerializer
 		) {
+			JsonSerializer = jsonSerializer;
 			Next = next;
 			JwtAuthenticationConfiguration = jwtAuthenticationConfiguration;
 		}
@@ -25,13 +30,13 @@ namespace Darkengines.Authentication.Jwt {
 		public async Task Invoke(HttpContext context, HttpIdentityProvider httpIdentityProvider, IIdentityProvider identityProvider) {
 			var idToken = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 			if (idToken != null) {
-				JwtAuthenticationConfiguration.JwtSecurityTokenHandler.ValidateToken(
+				var result = await JwtAuthenticationConfiguration.JwtSecurityTokenHandler.ValidateTokenAsync(
 					idToken,
-					JwtAuthenticationConfiguration.Parameters,
-					out var securityToken
+					JwtAuthenticationConfiguration.Parameters
 				);
-				var jwt = new JwtSecurityToken(idToken);
-				var user = default(User);//(User)jwt.Payload["user"];
+				using var reader = new StringReader(((System.Text.Json.JsonElement)result.Claims["user"]).ToString());
+				using var jsonReader = new JsonTextReader(reader);
+				var user = JsonSerializer.Deserialize<User>(jsonReader);
 				httpIdentityProvider.Identity = new Identity(user);
 			} else {
 				httpIdentityProvider.Identity = new Identity(null);

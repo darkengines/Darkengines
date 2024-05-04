@@ -22,7 +22,10 @@ namespace Darkengines.Authentication {
 		public static ModelBuilder ConfigureAuthentication(this ModelBuilder modelBuilder) {
 			var userPasswordResetRequestEntityTypeBuilder = modelBuilder.Entity<UserPasswordResetRequest>();
 			userPasswordResetRequestEntityTypeBuilder.AsMonitored();
-			userPasswordResetRequestEntityTypeBuilder.HasKey(userPasswordResetRequest => userPasswordResetRequest.UserId);
+			userPasswordResetRequestEntityTypeBuilder.HasKey(userPasswordResetRequest => new {
+				userPasswordResetRequest.UserId,
+				userPasswordResetRequest.Guid
+			});
 			userPasswordResetRequestEntityTypeBuilder.HasOne(userPasswordResetRequest => userPasswordResetRequest.User)
 			.WithMany(user => user.UserPasswordResetRequests)
 			.HasForeignKey(userPasswordResetRequest => userPasswordResetRequest.UserId);
