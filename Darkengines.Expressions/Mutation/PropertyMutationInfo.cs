@@ -1,4 +1,5 @@
 ﻿using Darkengines.Expressions.Security;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json.Linq;
@@ -30,7 +31,9 @@ namespace Darkengines.Expressions.Mutation {
 			var permissionPropertyInfo = EntityMutationInfo.PermissionEntityType.GetProperty(Property.Name);
 			var resolverExpression = EntityMutationInfo.RuleMap.GetPropertyOperationResolver(
 				memberEntry.Metadata.PropertyInfo,
-				memberEntry.IsModified ? Operation.Write : Operation.Read,
+				memberEntry.EntityEntry.State == EntityState.Modified
+				|| memberEntry.EntityEntry.State == EntityState.Added
+				|| memberEntry.IsModified ? Operation.Write : Operation.Read,
 				EntityMutationInfo.EntityMutationContext.SecurityContext,
 				instanceExpression
 			);

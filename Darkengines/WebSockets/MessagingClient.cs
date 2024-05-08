@@ -15,10 +15,11 @@ using System.Linq.Expressions;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
+using Darkengines.Users.Entities;
 
 namespace Darkengines.WebSockets {
     public class MessagingClient {
-        public IIdentity Identity { get; }
+        public User Identity { get; }
         public WebSocket WebSocket { get; }
         protected JsonSerializer JsonSerializer { get; }
         protected FluentApi FluentApi { get; }
@@ -27,7 +28,7 @@ namespace Darkengines.WebSockets {
         protected ModelProvider ModelProvider { get; }
         protected Mutation Mutation { get; }
         public MessagingClient(
-            IIdentity identity,
+            User identity,
             WebSocket webSocket,
             JsonSerializer jsonSerializer,
             FluentApi fluentApi,

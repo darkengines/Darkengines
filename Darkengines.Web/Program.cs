@@ -55,22 +55,8 @@ applicationBuilder.Services
 var application = applicationBuilder.Build();
 
 application.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-
+application.UseWebSockets();
 application.MapControllers();
-application.Map("/api", apiApplication => {
-	apiApplication.UseExceptionHandler(exceptionHandlerApplication => {
-		exceptionHandlerApplication.Run(async context => {
-			var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-			if (exceptionHandlerPathFeature?.Error != null) {
-				var jsonSerializer = application.Services.GetService<JsonSerializer>();
-				using var writer = new StreamWriter(context.Response.BodyWriter.AsStream());
-				using var jsonWriter = new JsonTextWriter(writer);
-				jsonSerializer.Serialize(jsonWriter, exceptionHandlerPathFeature.Error);
-			}
-		});
-	});
-	apiApplication.UseMiddleware<JwtAuthenticationMiddleware>();
-	apiApplication.UseMiddleware<ApiMiddleware>();
-});
+application.UseDarkengines();
 
 await application.RunAsync();

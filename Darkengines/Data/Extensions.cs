@@ -16,7 +16,7 @@ namespace Darkengines.Data {
 			return serviceCollection
 				.AddSingleton<ApplicationDbContextFactory>()
 				.AddScoped<Mutation>()
-				.AddScoped<IInterceptor, CreatedByOwnerSaveChangesInterceptor>()
+				.AddScoped<IInterceptor, MessagingSaveChangesInterceptor>()
 				.AddScoped<IInterceptor, ModificationByOwnerSaveChangesInterceptor>()
 				.AddScoped<IInterceptor, CreationDateOwnerSaveChangesInterceptor>()
 				.AddScoped<IInterceptor, ModificationDateOwnerSaveChangesInterceptor>()

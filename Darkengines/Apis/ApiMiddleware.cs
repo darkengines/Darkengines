@@ -8,26 +8,27 @@ using System.Linq.Expressions;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.AspNetCore.SignalR.Protocol;
-using Darkengines.Apis.FluentApi;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Darkengines.Models;
 using Darkengines.Data;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
-namespace Darkengines.Web {
+namespace Darkengines.Apis {
     public class ApiMiddleware {
         protected RequestDelegate Next { get; }
         protected JsonSerializer JsonSerializer { get; }
         protected ConversionContext ConverterContext { get; }
         protected ModelProvider ModelProvider { get; }
         protected ILogger<ApiMiddleware> Logger { get; }
-        protected FluentApi FluentApi { get; }
+        protected FluentApi.FluentApi FluentApi { get; }
 
         public ApiMiddleware(
             RequestDelegate next,
             JsonSerializer jsonSerializer,
             ConversionContext converterContext,
             ModelProvider modelProvider,
-            FluentApi fluentApi,
+			FluentApi.FluentApi fluentApi,
             ILogger<ApiMiddleware> logger
         ) {
             Next = next;
@@ -75,7 +76,7 @@ namespace Darkengines.Web {
             }
 
             var stopwatch = new Stopwatch();
-            var fluentApiContext = new FluentApiContext();
+            var fluentApiContext = new FluentApi.FluentApiContext();
             foreach (var identifier in identifiers) fluentApiContext.Identifiers.Add(identifier);
             stopwatch.Start();
             var result = await FluentApi.ExecuteAsync(source, fluentApiContext);

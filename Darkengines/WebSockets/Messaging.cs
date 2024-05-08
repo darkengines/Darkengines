@@ -1,5 +1,6 @@
 ﻿using Azure.Identity;
 using Darkengines.Authentication;
+using Darkengines.Users.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,9 +11,9 @@ using System.Threading.Tasks;
 namespace Darkengines.WebSockets {
     public class Messaging {
         protected static ISet<MessagingClient> EmptyClientSet = new HashSet<MessagingClient>();
-        protected ConcurrentDictionary<IIdentity, ISet<MessagingClient>> Clients { get; }
+        protected ConcurrentDictionary<User, ISet<MessagingClient>> Clients { get; }
         public Messaging() {
-            Clients = new ConcurrentDictionary<IIdentity, ISet<MessagingClient>>();
+            Clients = new ConcurrentDictionary<User, ISet<MessagingClient>>();
         }
         public void AddClient(MessagingClient client) {
             Clients.AddOrUpdate(client.Identity, new HashSet<MessagingClient> { client }, (identity, set) => {
@@ -26,7 +27,7 @@ namespace Darkengines.WebSockets {
                 return set;
             });
         }
-        public ISet<MessagingClient> GetClients(IIdentity identity) {
+        public ISet<MessagingClient> GetClients(User identity) {
             if (!Clients.TryGetValue(identity, out var clients)) return EmptyClientSet;
             return clients;
         }

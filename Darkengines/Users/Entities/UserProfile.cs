@@ -13,7 +13,7 @@ namespace Darkengines.Users.Entities {
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
         [DisplayTypeName("ImageUrl")]
-        public string? ImageUrl { get; set; }
+        public Uri? ImageUri { get; set; }
         public Gender? Gender { get; set; }
         public User User { get; set; }
         public int? CreatedById { get; set; }
