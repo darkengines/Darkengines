@@ -15,12 +15,16 @@ using Darkengines.Models;
 using Darkengines.Users.Entities;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Darkengines.Messaging.Entities;
+using Darkengines.Applications.Entities;
+using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace Darkengines.WebSockets {
 	public class MessagingMiddleware {
 		protected RequestDelegate Next { get; }
-		protected Messaging Messaging { get; }
-		public MessagingMiddleware(RequestDelegate next, Messaging messaging) {
+		protected MessagingSystem Messaging { get; }
+		public MessagingMiddleware(RequestDelegate next, MessagingSystem messaging) {
 			Next = next;
 			Messaging = messaging;
 		}
@@ -49,15 +53,21 @@ namespace Darkengines.WebSockets {
 				}
 
 				if (currentUser != null) {
-
+					var clientEntity = default(Client);
+					var connectionId = Guid.NewGuid();
 					var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 					var client = new MessagingClient(currentUser, webSocket, jsonSerializer, fluentApi, serviceProvider, applicationDbContext, modelProvider, mutation);
 					try {
 						Messaging.AddClient(client);
+						clientEntity = new Client { ConnectionId = connectionId, Host = new Uri(@"https://localhost/api"), UserId = currentUser.Id };
+						await applicationDbContext.Clients.AddAsync(clientEntity);
+						await applicationDbContext.SaveChangesAsync();
 						await client.Start();
-					} catch (Exception e) {
-						throw;
 					} finally {
+						if (clientEntity != default) {
+							applicationDbContext.Clients.Remove(clientEntity);
+							await applicationDbContext.SaveChangesAsync();
+						}
 						Messaging.RemoveClient(client);
 					}
 				} else {

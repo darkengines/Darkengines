@@ -9,10 +9,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Darkengines.WebSockets {
-    public class Messaging {
+    public class MessagingSystem {
         protected static ISet<MessagingClient> EmptyClientSet = new HashSet<MessagingClient>();
         protected ConcurrentDictionary<User, ISet<MessagingClient>> Clients { get; }
-        public Messaging() {
+        public MessagingSystem() {
             Clients = new ConcurrentDictionary<User, ISet<MessagingClient>>();
         }
         public void AddClient(MessagingClient client) {

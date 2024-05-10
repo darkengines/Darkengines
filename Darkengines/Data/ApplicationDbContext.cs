@@ -1,4 +1,5 @@
 ﻿using Darkengines.Authentication.Entities;
+using Darkengines.Messaging.Entities;
 using Darkengines.UserGroups.Entities;
 using Darkengines.Users.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Darkengines.Data {
 	public class ApplicationDbContext : DbContext {
 		public DbSet<User> Users { get; set; }
+		public DbSet<Client> Clients { get; set; }
 		public DbSet<UserEmailAddress> UserEmailAddresses { get; set; }
 		public DbSet<UserPasswordResetRequest> UserPasswordResetRequests { get; set; }
 		public DbSet<UserUserGroup> UserUserGroups { get; set; }

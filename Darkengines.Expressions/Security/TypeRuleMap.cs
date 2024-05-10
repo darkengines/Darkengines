@@ -14,11 +14,11 @@ namespace Darkengines.Expressions.Security {
 			}
 			return (PropertyRuleMap<TItem, TProperty, TContext>)propertyRuleMap;
 		}
-		public Expression? GetPropertyResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, object key, TContext context, Expression instanceExpression) {
+		public Expression? GetPropertyResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, object key, Expression context, Expression instanceExpression) {
 			var propertyInfo = ExpressionHelper.ExtractPropertyInfo(propertyExpression);
 			return GetPropertyResolver(propertyInfo, key, context, instanceExpression);
 		}
-		public override Expression? GetPropertyResolver(PropertyInfo propertyInfo, object key, TContext context, Expression instanceExpression) {
+		public override Expression? GetPropertyResolver(PropertyInfo propertyInfo, object key, Expression context, Expression instanceExpression) {
 			var resolver = default(Expression?);
 			if (PropertyRuleMaps.TryGetValue(propertyInfo, out var propertyRuleMap)) {
 				resolver = propertyRuleMap.GetResolver(key, context, instanceExpression);
@@ -27,11 +27,11 @@ namespace Darkengines.Expressions.Security {
 			}
 			return resolver;
 		}
-		public Expression? GetPropertyOperationResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, Operation operation, TContext context, Expression instanceExpression) {
+		public Expression? GetPropertyOperationResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, Operation operation, Expression context, Expression instanceExpression) {
 			var propertyInfo = ExpressionHelper.ExtractPropertyInfo(propertyExpression);
 			return GetPropertyOperationResolver(propertyInfo, operation, context, instanceExpression);
 		}
-		public override Expression? GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, TContext context, Expression instanceExpression) {
+		public override Expression? GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression context, Expression instanceExpression) {
 			return GetPropertyResolver(propertyInfo, operation, context, instanceExpression);
 		}
 	}

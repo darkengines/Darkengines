@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Darkengines.WebSockets {
     public static class Extensions {
         public static IServiceCollection AddMessaging(this IServiceCollection services) {
-            return services.AddSingleton<Messaging>();
+            return services.AddSingleton<MessagingSystem>();
         }
 		public static IApplicationBuilder UseMessaging(this IApplicationBuilder applicationBuilder) {
 			return applicationBuilder.UseMiddleware<MessagingMiddleware>();

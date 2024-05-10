@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 namespace Darkengines.Expressions.Security {
 	public interface IRuleMap {
 		Type Type { get; }
-		Expression GetResolver(object key, object context, Expression instanceParameterExpression);
-		Expression GetOperationResolver(Operation operation, object context, Expression instanceParameterExpression);
-		public Expression? GetPropertyResolver(PropertyInfo propertyInfo, object key, object context, Expression instanceExpression);
-		public Expression? GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, object context, Expression instanceExpression);
+		Expression GetResolver(object key, Expression contextExpression, Expression instanceParameterExpression);
+		Expression GetOperationResolver(Operation operation, Expression contextExpression, Expression instanceParameterExpression);
+		public Expression? GetPropertyResolver(PropertyInfo propertyInfo, object key, Expression contextExpression, Expression instanceExpression);
+		public Expression? GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression contextExpression, Expression instanceExpression);
 	}
 }
