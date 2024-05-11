@@ -10,19 +10,25 @@ using Darkengines.Messaging;
 using Darkengines.Expressions.Converters.Javascript;
 using System.Reflection;
 using static Darkengines.Data.MessagingSaveChangesInterceptor;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Darkengines.Data {
 	public class MessagingSaveChangesInterceptor : SaveChangesInterceptor {
 		protected IEnumerable<IRuleMap> RuleMaps { get; }
 		protected IApplicationContext ApplicationContext { get; }
 		protected MessagingSystem MessagingSystem { get; }
+		protected JsonSerializer JsonSerializer { get; }
 		public MessagingSaveChangesInterceptor(
 			IApplicationContext applicationContext,
 			MessagingSystem messagingSystem,
-			IEnumerable<IRuleMap> ruleMaps
+			IEnumerable<IRuleMap> ruleMaps,
+			JsonSerializer jsonSerializer
 		) {
 			ApplicationContext = applicationContext;
 			RuleMaps = ruleMaps;
+			JsonSerializer = jsonSerializer;
+			MessagingSystem = messagingSystem;
 		}
 
 		public class ResolverRegistry {
@@ -48,7 +54,7 @@ namespace Darkengines.Data {
 						EntryGroup = entryGroup
 					}
 				);
-				entryRuleMaps.Select(entryRuleMaps => {
+				var predicates = entryRuleMaps.Select(entryRuleMaps => {
 					var instanceExpression = Expression.Parameter(entryRuleMaps.EntryGroup.Key);
 					var contextParameterExpression = Expression.Parameter(typeof(IApplicationContext));
 					var propertyInfos = entryRuleMaps.RuleMapGroup.Key.GetProperties().ToArray();
@@ -95,29 +101,66 @@ namespace Darkengines.Data {
 						}
 					);
 					var lambdaExpression = Expression.Lambda<Func<IApplicationContext, object, bool>>(
-						predicateExpression,
+						resolverRegistry.InstanceExpression,
 						contextParameterExpression,
 						instanceExpression
 					);
+					var propertyLambdaExpressions = resolverRegistry.InstancePropertyExpression.Select(pair => {
+						var lambdaExpression = Expression.Lambda<Func<IApplicationContext, object, bool>>(
+							pair.Value,
+							contextParameterExpression,
+							instanceExpression
+						);
+						return new {
+							PropertyInfo = pair.Key,
+							Expression = pair.Value,
+							LambdaExpression = lambdaExpression,
+							Predicate = lambdaExpression.Compile()
+						};
+					}).ToDictionary(tuple => tuple.PropertyInfo);
 					var predicate = lambdaExpression.Compile();
-					foreach (var entry in entryRuleMaps.EntryGroup.Value) {
-						var primaryKey = entry.Metadata.FindPrimaryKey();
-						var properties = entry.Properties.Where(property => property.IsModified).ToArray();
-						properties.Join()
-							foreach (var user in userClients) {
-							var result = predicate(new MessagingApplicationContext(user.Key), entry.Entity);
-							if (result) {
+					return new {
+						Type = entryRuleMaps.EntryGroup.Key,
+						InstancePredicate = predicate,
+						PropertyPredicates = propertyLambdaExpressions
+					};
+				}).ToDictionary(tuple => tuple.Type);
+
+
+				foreach (var entryRuleMap in entryRuleMaps) {
+					if (!predicates.TryGetValue(entryRuleMap.RuleMapGroup.Key, out var predicate)) continue;
+					foreach (var user in userClients) {
+						var context = new MessagingApplicationContext(user.Key);
+						foreach (var entry in entryRuleMap.EntryGroup.Value) {
+							if (!predicate.InstancePredicate.Invoke(context, entry.Entity)) continue;
+							var primaryKey = entry.Metadata.FindPrimaryKey();
+							var propertyPredicates = entry.Properties.Where(property => property.IsModified)
+							.Join(
+								predicate.PropertyPredicates,
+								property => property.Metadata.PropertyInfo,
+								predicate => predicate.Key,
+								(property, predicate) => (property, predicate)
+							).ToArray();
+							if (!propertyPredicates.Any()) continue;
+							var delta = Activator.CreateInstance(entry.Metadata.ClrType);
+							foreach (var primaryKeyProperty in primaryKey.Properties) {
+								primaryKeyProperty.PropertyInfo.SetValue(delta, primaryKeyProperty.PropertyInfo.GetValue(entry.Entity));
+							}
+							foreach (var propertyPredicate in propertyPredicates) {
+								if (!propertyPredicate.predicate.Value.Predicate(context, entry.Entity)) continue;
+								propertyPredicate.property.Metadata.PropertyInfo.SetValue(delta, propertyPredicate.property.Metadata.PropertyInfo.GetValue(entry.Entity));
+							}
+							foreach (var client in user.Value) {
+								var writer = new StringWriter();
+								JsonSerializer.Serialize(writer, delta);
+								var serialized = writer.ToString();
+								await client.SendMessageAsync(client.WebSocket, Encoding.UTF8.GetBytes(serialized));
 							}
 						}
 					}
-				})
-				foreach (var entry in eventData.Context.ChangeTracker.Entries()) {
-					if (ruleMaps.TryGetValue(entry.Metadata.ClrType, out var ruleMap)) {
-						ruleMap.GetOperationResolver(Operation.Read,)
-						}
 				}
-				return await base.SavingChangesAsync(eventData, result, cancellationToken);
 			}
+			return await base.SavingChangesAsync(eventData, result, cancellationToken);
 		}
 	}
 }

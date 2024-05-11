@@ -35,7 +35,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json;
 using Darkengines.Apis;
 using Darkengines.Storage;
-using Darkengines.WebSockets;
+using Darkengines.Messaging;
 
 namespace Darkengines {
 	public static class Extensions {
@@ -70,6 +70,7 @@ namespace Darkengines {
 				modelBuilder = modelBuilder.ConfigureUserGroups();
 				modelBuilder = modelBuilder.ConfigureAuthentication();
 				modelBuilder = modelBuilder.ConfigureApplications();
+				modelBuilder = modelBuilder.ConfigureMessaging();
 				modelBuilder = modelBuilder.AddModels();
 
 				var model = modelBuilder.Model.FinalizeModel();

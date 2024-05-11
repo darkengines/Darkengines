@@ -176,7 +176,7 @@ namespace Darkengines.Expressions.Mutation {
 			return Expression.MemberInit(newExpression, memberBindings);
 		}
 		public MemberBinding BuildSelfPermissionMemberBinding(EntityEntry entityEntry, Expression instanceExpression) {
-			var permissionExpression = RuleMap.GetOperationResolver(entityEntry.State.ToOperation(), EntityMutationContext.SecurityContext, instanceExpression);
+			var permissionExpression = RuleMap.GetOperationResolver(entityEntry.State.ToOperation(), Expression.Constant(EntityMutationContext.SecurityContext), instanceExpression);
 			var memberBinding = Expression.Bind(SelfPermissionProperty, permissionExpression);
 			return memberBinding;
 		}

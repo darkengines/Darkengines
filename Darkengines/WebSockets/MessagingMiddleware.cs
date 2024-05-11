@@ -37,7 +37,8 @@ namespace Darkengines.WebSockets {
 			ApplicationDbContext applicationDbContext,
 			IServiceProvider serviceProvider,
 			ModelProvider modelProvider,
-			Mutation mutation
+			Mutation mutation,
+			MessagingSystem messagingSystem
 		) {
 			if (context.WebSockets.IsWebSocketRequest) {
 				var idToken = context.Request.Query["idToken"].First();
@@ -56,7 +57,17 @@ namespace Darkengines.WebSockets {
 					var clientEntity = default(Client);
 					var connectionId = Guid.NewGuid();
 					var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-					var client = new MessagingClient(currentUser, webSocket, jsonSerializer, fluentApi, serviceProvider, applicationDbContext, modelProvider, mutation);
+					var client = new MessagingClient(
+						currentUser, 
+						webSocket, 
+						jsonSerializer, 
+						fluentApi, 
+						serviceProvider, 
+						applicationDbContext, 
+						modelProvider, 
+						mutation,
+						messagingSystem
+					);
 					try {
 						Messaging.AddClient(client);
 						clientEntity = new Client { ConnectionId = connectionId, Host = new Uri(@"https://localhost/api"), UserId = currentUser.Id };

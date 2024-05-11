@@ -34,7 +34,7 @@ namespace Darkengines.Expressions.Mutation {
 				memberEntry.EntityEntry.State == EntityState.Modified
 				|| memberEntry.EntityEntry.State == EntityState.Added
 				|| memberEntry.IsModified ? Operation.Write : Operation.Read,
-				EntityMutationInfo.EntityMutationContext.SecurityContext,
+				Expression.Constant(EntityMutationInfo.EntityMutationContext.SecurityContext),
 				instanceExpression
 			);
 			//if (resolverExpression is NonQueryExpression nonQueryExpression) {

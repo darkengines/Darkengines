@@ -27,6 +27,8 @@ namespace Darkengines.WebSockets {
         protected ApplicationDbContext ApplicationDbContext { get; }
         protected ModelProvider ModelProvider { get; }
         protected Mutation Mutation { get; }
+        protected MessagingSystem MessagingSystem { get; }
+
         public MessagingClient(
             User identity,
             WebSocket webSocket,
@@ -35,7 +37,8 @@ namespace Darkengines.WebSockets {
             IServiceProvider serviceProvider,
             ApplicationDbContext context,
             ModelProvider modelProvider,
-            Mutation mutation
+            Mutation mutation,
+            MessagingSystem messagingSystem
         ) {
             Identity = identity;
             WebSocket = webSocket;
@@ -45,6 +48,7 @@ namespace Darkengines.WebSockets {
             ApplicationDbContext = context;
             ModelProvider = modelProvider;
             Mutation = mutation;
+            MessagingSystem = messagingSystem;
         }
         public async Task Start() {
             var buffer = new byte[1024];
