@@ -1,17 +1,13 @@
-﻿using Darkengines.Data;
-using Darkengines.Applications;
-using Darkengines.Authentication;
+﻿using Darkengines.Applications;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Darkengines.Expressions.Security;
 using Darkengines.WebSockets;
 using Darkengines.Expressions;
 using System.Linq.Expressions;
 using Darkengines.Messaging;
-using Darkengines.Expressions.Converters.Javascript;
 using System.Reflection;
-using static Darkengines.Data.MessagingSaveChangesInterceptor;
 using Newtonsoft.Json;
 using System.Text;
+using Darkengines.Expressions.Security;
 
 namespace Darkengines.Data {
 	public class MessagingSaveChangesInterceptor : SaveChangesInterceptor {
@@ -39,7 +35,7 @@ namespace Darkengines.Data {
 			}
 		}
 
-		public async override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default) {
+		public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default) {
 			if (eventData.Context is ApplicationDbContext applicationDbContext) {
 				var clients = MessagingSystem.GetClients();
 				var userClients = clients.GroupBy(client => client.Identity).ToDictionary(userClients => userClients.Key);
@@ -55,52 +51,62 @@ namespace Darkengines.Data {
 					}
 				);
 				var predicates = entryRuleMaps.Select(entryRuleMaps => {
-					var instanceExpression = Expression.Parameter(entryRuleMaps.EntryGroup.Key);
-					var contextParameterExpression = Expression.Parameter(typeof(IApplicationContext));
+					var instanceExpression = Expression.Parameter(typeof(object), "instance");
+					var contextParameterExpression = Expression.Parameter(typeof(IApplicationContext), "context");
 					var propertyInfos = entryRuleMaps.RuleMapGroup.Key.GetProperties().ToArray();
 					var resolverRegistry = new ResolverRegistry {
-						InstanceExpression = Expression.Constant(false)
+						InstanceExpression = null!
 					};
-					foreach (var propertyInfo in propertyInfos) {
-						resolverRegistry.InstancePropertyExpression[propertyInfo] = Expression.Constant(false);
-					}
 					resolverRegistry = entryRuleMaps.RuleMapGroup.Value.Aggregate(
 						resolverRegistry,
 						(resolverRegistry, rulemap) => {
-							resolverRegistry = propertyInfos.Select(propertyInfo =>
-								new {
-									Resolver = rulemap.GetPropertyOperationResolver(
-										propertyInfo,
-										Operation.Read,
-										contextParameterExpression,
-										Expression.Convert(instanceExpression, entryRuleMaps.EntryGroup.Key)
-									),
-									PropertyInfo = propertyInfo
+							resolverRegistry = propertyInfos.Select(propertyInfo => {
+								if (rulemap.TryGetPropertyOperationResolver(
+									propertyInfo,
+									Operation.Read,
+									contextParameterExpression,
+									Expression.Convert(instanceExpression, entryRuleMaps.EntryGroup.Key),
+									out var resolver
+								)) {
+									return new {
+										Resolver = resolver,
+										PropertyInfo = propertyInfo
+									};
 								}
-							).Where(tuple => tuple.Resolver != null)
+								return null;
+							}).Where(tuple => tuple?.Resolver != null)
 							.Aggregate(
 								resolverRegistry,
 								(resolverRegistry, tuple) => {
-									resolverRegistry.InstancePropertyExpression[tuple.PropertyInfo] = Expression.OrElse(
-										resolverRegistry.InstancePropertyExpression[tuple.PropertyInfo],
-										tuple.Resolver
-									);
+									if (resolverRegistry.InstancePropertyExpression.TryGetValue(tuple.PropertyInfo, out _)) {
+										resolverRegistry.InstancePropertyExpression[tuple.PropertyInfo] = Expression.OrElse(
+											resolverRegistry.InstancePropertyExpression[tuple.PropertyInfo],
+											tuple.Resolver!
+										);
+									} else {
+										resolverRegistry.InstancePropertyExpression[tuple.PropertyInfo] = tuple.Resolver!;
+									}
 									return resolverRegistry;
 								}
 							);
 
-							resolverRegistry.InstanceExpression = Expression.OrElse(
-								resolverRegistry.InstanceExpression,
-								rulemap.GetOperationResolver(
-									Operation.Read,
-									contextParameterExpression,
-									Expression.Convert(instanceExpression, entryRuleMaps.EntryGroup.Key)
-								)
-							);
+							if (rulemap.TryGetOperationResolver(
+								Operation.Read,
+								contextParameterExpression,
+								Expression.Convert(instanceExpression, entryRuleMaps.EntryGroup.Key),
+								out var resolver
+							)) {
+								resolverRegistry.InstanceExpression = resolverRegistry.InstanceExpression == null ?
+									resolver!
+									: Expression.OrElse(
+										resolverRegistry.InstanceExpression,
+										resolver!
+									);
+							}
 							return resolverRegistry;
 						}
 					);
-					var lambdaExpression = Expression.Lambda<Func<IApplicationContext, object, bool>>(
+					var lambdaExpression = resolverRegistry.InstanceExpression == null ? null : Expression.Lambda<Func<IApplicationContext, object, bool>>(
 						resolverRegistry.InstanceExpression,
 						contextParameterExpression,
 						instanceExpression
@@ -111,20 +117,21 @@ namespace Darkengines.Data {
 							contextParameterExpression,
 							instanceExpression
 						);
+						var predicate = lambdaExpression.Compile();
 						return new {
 							PropertyInfo = pair.Key,
 							Expression = pair.Value,
 							LambdaExpression = lambdaExpression,
-							Predicate = lambdaExpression.Compile()
+							Predicate = predicate
 						};
 					}).ToDictionary(tuple => tuple.PropertyInfo);
-					var predicate = lambdaExpression.Compile();
+					var predicate = lambdaExpression?.Compile();
 					return new {
 						Type = entryRuleMaps.EntryGroup.Key,
 						InstancePredicate = predicate,
 						PropertyPredicates = propertyLambdaExpressions
 					};
-				}).ToDictionary(tuple => tuple.Type);
+				}).Where(predicate => predicate.InstancePredicate != null).ToDictionary(tuple => tuple.Type);
 
 
 				foreach (var entryRuleMap in entryRuleMaps) {

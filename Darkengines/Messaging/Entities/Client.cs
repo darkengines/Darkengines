@@ -11,5 +11,6 @@ namespace Darkengines.Messaging.Entities {
 		public required Guid ConnectionId { get; set; }
 		public required int UserId { get; set; }
 		public virtual User? User { get; set; }
+		public required DateTimeOffset LastKeepAliveDateTime { get; set; }
 	}
 }

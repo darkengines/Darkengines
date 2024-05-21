@@ -14,25 +14,23 @@ namespace Darkengines.Expressions.Security {
 			}
 			return (PropertyRuleMap<TItem, TProperty, TContext>)propertyRuleMap;
 		}
-		public Expression? GetPropertyResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, object key, Expression context, Expression instanceExpression) {
+		public bool TryGetPropertyResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, object key, Expression context, Expression instanceExpression, out Expression? resolver) {
 			var propertyInfo = ExpressionHelper.ExtractPropertyInfo(propertyExpression);
-			return GetPropertyResolver(propertyInfo, key, context, instanceExpression);
+			return TryGetPropertyResolver(propertyInfo, key, context, instanceExpression, out resolver);
 		}
-		public override Expression? GetPropertyResolver(PropertyInfo propertyInfo, object key, Expression context, Expression instanceExpression) {
-			var resolver = default(Expression?);
+		public override bool TryGetPropertyResolver(PropertyInfo propertyInfo, object key, Expression context, Expression instanceExpression, out Expression? resolver) {
 			if (PropertyRuleMaps.TryGetValue(propertyInfo, out var propertyRuleMap)) {
-				resolver = propertyRuleMap.GetResolver(key, context, instanceExpression);
-			} else {
-				throw new KeyNotFoundException($"No resolver found for property {propertyInfo.Name} of type {propertyInfo.DeclaringType.Name} with key {key}.");
+				return propertyRuleMap.TryGetResolver(key, context, instanceExpression, out resolver);
 			}
-			return resolver;
+			resolver = null;
+			return false;
 		}
-		public Expression? GetPropertyOperationResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, Operation operation, Expression context, Expression instanceExpression) {
+		public bool TryGetPropertyOperationResolver<TProperty>(Expression<Func<TItem, TProperty>> propertyExpression, Operation operation, Expression context, Expression instanceExpression, out Expression? resolver) {
 			var propertyInfo = ExpressionHelper.ExtractPropertyInfo(propertyExpression);
-			return GetPropertyOperationResolver(propertyInfo, operation, context, instanceExpression);
+			return TryGetPropertyOperationResolver(propertyInfo, operation, context, instanceExpression, out resolver);
 		}
-		public override Expression? GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression context, Expression instanceExpression) {
-			return GetPropertyResolver(propertyInfo, operation, context, instanceExpression);
+		public override bool TryGetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression context, Expression instanceExpression, out Expression? resolver) {
+			return TryGetPropertyResolver(propertyInfo, operation, context, instanceExpression, out resolver);
 		}
 	}
 }

@@ -10,14 +10,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Darkengines.Models.Rules {
-    public class EntityRule : TypeRuleMap<Entity, IApplicationContext> {
-        public EntityRule() {
-            WithOperation(Operation.Manage);
-            Expose(entity => entity.Name);
-            Expose(entity => entity.DisplayName);
-            Expose(entity => entity.Description);
-            Expose(entity => entity.ModelName);
-            Expose(entity => entity.Model);
-        }
-    }
+	public class EntityRule : TypeRuleMap<Entity, IApplicationContext> {
+		public EntityRule() {
+			WithOperation(Operation.Manage);
+			Expose(entity => entity.Name).WithOperation(Operation.Read);
+			Expose(entity => entity.DisplayName).WithOperation(Operation.Read);
+			Expose(entity => entity.Description).WithOperation(Operation.Read);
+			Expose(entity => entity.ModelName).WithOperation(Operation.Read);
+			Expose(entity => entity.Model).WithOperation(Operation.Read);
+		}
+	}
 }

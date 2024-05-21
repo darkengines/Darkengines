@@ -8,12 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Darkengines.UserGroups {
 	public static class Extensions {
 		public static IServiceCollection AddUserGroups(this IServiceCollection serviceCollection) {
-			return serviceCollection.AddSingleton<IRuleMap, UserGroupRule>().AddSingleton<IRuleMap, UserUserGroupRule>();
+			return serviceCollection
+				.AddSingleton<IRuleMap, UserGroupRule>()
+				.AddSingleton<IRuleMap, UserUserGroupRule>();
 		}
 		public static ModelBuilder ConfigureUserGroups(this ModelBuilder modelBuilder) {
 			var userGroupEntityTypeBuilder = modelBuilder.Entity<UserGroup>();
 			userGroupEntityTypeBuilder.HasKey(user => user.Id);
 			userGroupEntityTypeBuilder.Property(user => user.DisplayName).HasMaxLength(256).IsRequired();
+			userGroupEntityTypeBuilder.Property(user => user.ExternalId).HasMaxLength(256).IsRequired();
+			userGroupEntityTypeBuilder.HasIndex(userGroup => userGroup.ExternalId).HasFilter($"[{nameof(UserGroup.ExternalId)}] IS NOT NULL");
 			userGroupEntityTypeBuilder.HasMany(userGroup => userGroup.UserUserGroups).WithOne(userUserGroup => userUserGroup.UserGroup).HasForeignKey(userUserGroup => userUserGroup.UserGroupId);
 
 			var userUserGroupEntityTypeBuilder = modelBuilder.Entity<UserUserGroup>();

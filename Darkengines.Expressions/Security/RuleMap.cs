@@ -20,44 +20,58 @@ namespace Darkengines.Expressions.Security {
 			return this;
 		}
 		public RuleMap<TItem, TContext> WithOperation(Operation operation) {
-			return WithResolver(operation, (instance, context) => true);
+			for (var flagIndex = 0; flagIndex < 32; flagIndex++) {
+				var flag = (Operation)(1 << flagIndex);
+				if ((operation & flag) == flag) {
+					WithResolver(flag, (instance, context) => true);
+				}
+			}
+			return this;
 		}
 		public RuleMap<TItem, TContext> WithOperation(Operation operation, Expression<Resolver<TItem, TContext, bool>> operatioResolver) {
-			return WithResolver(operation, operatioResolver);
+			for (var flagIndex = 0; flagIndex < 32; flagIndex++) {
+				var flag = (Operation)(1 << flagIndex);
+				if ((operation & flag) == flag) {
+					WithResolver(flag, operatioResolver);
+				}
+			}
+			return this;
 		}
-		public Expression GetResolver(object key, Expression contextExpression, Expression instanceExpression) {
-			var resolverBody = (Expression)new NonQueryExpression(Expression.Constant(false));
-			if (Resolvers.TryGetValue(key, out var resolver)) {
-				resolverBody = resolver.Body;
+		public bool TryGetResolver(object key, Expression contextExpression, Expression instanceExpression, out Expression? resolver) {
+			if (Resolvers.TryGetValue(key, out var resolverLambdaExpression)) {
+				var resolverBody = resolverLambdaExpression.Body;
 				resolverBody = resolverBody.Replace(new Dictionary<Expression, Expression>() {
-					{ resolver.Parameters[0], instanceExpression },
-					{ resolver.Parameters[1], Expression.Constant(contextExpression) }
+					{ resolverLambdaExpression.Parameters[0], instanceExpression },
+					{ resolverLambdaExpression.Parameters[1], contextExpression }
 				});
 				var booleanExpressionVisitor = new NonQueryExpressionVisitor();
-				resolverBody = booleanExpressionVisitor.Visit(resolverBody);
+				resolver = booleanExpressionVisitor.Visit(resolverBody);
+				return true;
 			}
-			return resolverBody;
+			resolver = default;
+			return false;
+		}
+		public Expression GetResolver(object key, Expression contextExpression, Expression instanceExpression) {
+			if (TryGetResolver(key, contextExpression, instanceExpression, out var resolver)) {
+				return resolver;
+			}
+			throw new NotSupportedException($"No resolver found for key {key} on entity type {Type}");
+		}
+		public bool TryGetOperationResolver(Operation operation, Expression contextExpression, Expression instanceExpression, out Expression? resolver) {
+			return TryGetResolver(operation, contextExpression, instanceExpression, out resolver);
 		}
 		public Expression GetOperationResolver(Operation operation, Expression contextExpression, Expression instanceExpression) {
 			return GetResolver(operation, contextExpression, instanceExpression);
 		}
 
-		Expression IRuleMap.GetOperationResolver(Operation operation, Expression contextExpression, Expression instanceExpression) {
-			return GetOperationResolver(operation, contextExpression, instanceExpression);
+		public Expression GetPropertyResolver(PropertyInfo propertyInfo, object key, Expression contextExpression, Expression instanceExpression) {
+			if (TryGetPropertyResolver(propertyInfo, key, contextExpression, instanceExpression, out instanceExpression)) return instanceExpression;
+			throw new NotSupportedException($"No resolver found for key {key} on {propertyInfo.DeclaringType.Name ?? "<DeclaringType>"}.{propertyInfo.Name}");
 		}
-
-		Expression IRuleMap.GetResolver(object key, Expression contextExpression, Expression instanceExpression) {
-			return GetResolver(key, contextExpression, instanceExpression);
+		public Expression GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression contextExpression, Expression instanceExpression) {
+			return GetPropertyResolver(propertyInfo, operation, contextExpression, instanceExpression);
 		}
-
-		public abstract Expression? GetPropertyResolver(PropertyInfo propertyInfo, object key, Expression contextExpression, Expression instanceExpression);
-		public abstract Expression? GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression contextExpression, Expression instanceExpression);
-		Expression? IRuleMap.GetPropertyResolver(PropertyInfo propertyInfo, object key, Expression contextExpression, Expression instanceExpression) {
-			return GetPropertyResolver(propertyInfo, key, contextExpression, instanceExpression);
-		}
-
-		Expression? IRuleMap.GetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression contextExpression, Expression instanceExpression) {
-			return GetPropertyOperationResolver(propertyInfo, operation, contextExpression, instanceExpression);
-		}
+		public abstract bool TryGetPropertyResolver(PropertyInfo propertyInfo, object key, Expression contextExpression, Expression instanceExpression, out Expression? resolver);
+		public abstract bool TryGetPropertyOperationResolver(PropertyInfo propertyInfo, Operation operation, Expression contextExpression, Expression instanceExpression, out Expression? resolver);
 	}
 }

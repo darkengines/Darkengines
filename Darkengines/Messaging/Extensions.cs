@@ -16,7 +16,7 @@ namespace Darkengines.Messaging {
 		public static IServiceCollection AddMessaging(this IServiceCollection services) {
 			return services
 				.AddSingleton<MessagingSystem>()
-				.AddScoped<IInterceptor, MessagingSaveChangesInterceptor>(); ;
+				.AddScoped<IInterceptor, MessagingSaveChangesInterceptor>();
 		}
 		public static IApplicationBuilder UseMessaging(this IApplicationBuilder applicationBuilder) {
 			return applicationBuilder.UseMiddleware<MessagingMiddleware>();
@@ -26,6 +26,7 @@ namespace Darkengines.Messaging {
 			modelEntityBuilder.HasKey(model => model.ConnectionId);
 			modelEntityBuilder.HasIndex(model => new { model.ConnectionId, model.UserId });
 			modelEntityBuilder.Property(model => model.Host).HasMaxLength(256).IsRequired();
+			modelEntityBuilder.Property(model => model.LastKeepAliveDateTime).IsRequired();
 			modelEntityBuilder.Property(model => model.UserId).IsRequired();
 			modelEntityBuilder.Property(model => model.ConnectionId).IsRequired();
 			modelEntityBuilder.HasOne(model => model.User).WithMany(user => user.Clients).HasForeignKey(client => client.UserId);

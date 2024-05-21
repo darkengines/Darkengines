@@ -28,7 +28,7 @@ namespace Darkengines.Users.Entities {
 		public UserProfile? UserProfile { get; set; }
 		public UserSettings? UserSettings { get; set; }
 		public virtual ICollection<UserEmailAddress> UserEmailAddresses { get; set; }
-		public virtual ICollection<UserUserGroup> UserUserGroups { get; }
+		public virtual ICollection<UserUserGroup> UserUserGroups { get; set; }
 		public virtual ICollection<UserPasswordResetRequest> UserPasswordResetRequests { get; }
 		public string? LastIpAddress { get; set; }
 		public bool IsActive { get; set; }

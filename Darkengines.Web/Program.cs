@@ -29,6 +29,7 @@ applicationBuilder.Host.UseSerilog((context, loggerConfiguration) =>
 	.Enrich.WithProperty(nameof(context.HostingEnvironment.ApplicationName), context.HostingEnvironment.ApplicationName)
 	.Enrich.WithProperty(nameof(context.HostingEnvironment.EnvironmentName), context.HostingEnvironment.EnvironmentName)
 );
+var interceptorAdded = false;
 applicationBuilder.Services
 	.AddHsts(options => { })
 	.AddDarkengines(applicationBuilder.Configuration)
@@ -41,7 +42,10 @@ applicationBuilder.Services
 		var model = serviceProvider.GetRequiredService<IModel>();
 		var interceptors = serviceProvider.GetRequiredService<IEnumerable<IInterceptor>>();
 		var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-		options.AddInterceptors(interceptors);
+		if (!interceptorAdded) {
+			options.AddInterceptors(interceptors);
+			interceptorAdded = true;
+		}
 		options.UseInternalServiceProvider(serviceProvider);
 		options.UseSqlServer(configuration.GetConnectionString("default"), sqlServerOptions => {
 			sqlServerOptions.CommandTimeout(60);

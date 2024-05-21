@@ -111,28 +111,8 @@ namespace Darkengines {
 			return serviceCollection;
 		}
 		public static ModelBuilder CreateModelBuilder() {
-			//using var serviceScope = CreateServiceScope();
-			//using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
-			//return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
 			var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
 			return modelBuilder;
-		}
-
-		private static IServiceScope CreateServiceScope() {
-			var serviceProvider = new ServiceCollection()
-				.AddEntityFrameworkSqlServer()
-				.AddEntityFrameworkSqlServerNetTopologySuite()
-				.AddDbContext<DbContext>(
-					(serviceProvider, dbContextOptionsBuilder) => {
-						dbContextOptionsBuilder.AddInterceptors(serviceProvider.GetRequiredService<IEnumerable<IInterceptor>>());
-						dbContextOptionsBuilder.UseSqlServer("Server=.", sqlServerOptions => {
-							sqlServerOptions.UseNetTopologySuite();
-						})
-						.UseInternalServiceProvider(serviceProvider);
-					})
-				.BuildServiceProvider();
-
-			return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
 		}
 	}
 	public static class StringExtensions {

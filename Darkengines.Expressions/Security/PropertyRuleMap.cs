@@ -21,34 +21,48 @@ namespace Darkengines.Expressions.Security {
 			return this;
 		}
 		public PropertyRuleMap<TItem, TProperty, TContext> WithOperation(Operation operation) {
-			return WithResolver(operation, (instance, context) => true);
+			for (var flagIndex = 0; flagIndex < 32; flagIndex++) {
+				var flag = (Operation)(1 << flagIndex);
+				if ((operation & flag) == flag) {
+					WithResolver(flag, (context, instance) => true);
+				}
+			}
+			return this;
 		}
 		public PropertyRuleMap<TItem, TProperty, TContext> WithOperation(Operation operation, Expression<PropertyResolver<TItem, TProperty, TContext, bool>> operationResolver) {
-			return WithResolver(operation, operationResolver);
+			for (var flagIndex = 0; flagIndex < 32; flagIndex++) {
+				var flag = (Operation)(1 << flagIndex);
+				if ((operation & flag) == flag) {
+					WithResolver(flag, operationResolver);
+				}
+			}
+			return this;
 		}
-		public Expression GetResolver(object key, Expression contextExpression, Expression instanceExpression) {
-			var resolverBody = (Expression)new NonQueryExpression(Expression.Constant(false));
-			if (Resolvers.TryGetValue(key, out var resolver)) {
-				resolverBody = resolver.Body;
+		public bool TryGetResolver(object key, Expression contextExpression, Expression instanceExpression, out Expression? resolver) {
+			if (Resolvers.TryGetValue(key, out var resolverLambdaExpression)) {
+				var resolverBody = resolverLambdaExpression.Body;
 				resolverBody = resolverBody.Replace(new Dictionary<Expression, Expression>() {
-					{ resolver.Parameters[0], instanceExpression },
-					{ resolver.Parameters[1], contextExpression }
+					{ resolverLambdaExpression.Parameters[0], contextExpression },
+					{ resolverLambdaExpression.Parameters[1], instanceExpression }
 				});
 				var booleanExpressionVisitor = new NonQueryExpressionVisitor();
-				resolverBody = booleanExpressionVisitor.Visit(resolverBody);
+				resolver = booleanExpressionVisitor.Visit(resolverBody);
+				return true;
 			}
-			return resolverBody;
+			resolver = default;
+			return false;
+		}
+		public Expression GetResolver(object key, Expression contextExpression, Expression instanceExpression) {
+			if (TryGetResolver(key, contextExpression, instanceExpression, out var resolver)) {
+				return resolver;
+			}
+			throw new NotSupportedException($"No resolver found for key {key} on {PropertyInfo.DeclaringType?.Name ?? "<No declaring type>"}.{PropertyInfo.Name}.");
+		}
+		public bool TryGetOperationResolver(Operation operation, Expression contextExpression, Expression instanceExpression, out Expression? resolver) {
+			return TryGetResolver(operation, contextExpression, instanceExpression, out resolver);
 		}
 		public Expression GetOperationResolver(Operation operation, Expression contextExpression, Expression instanceExpression) {
 			return GetResolver(operation, contextExpression, instanceExpression);
-		}
-
-		Expression IPropertyRuleMap.GetOperationResolver(Operation operation, Expression contextExpression, Expression instanceExpression) {
-			return GetOperationResolver(operation, contextExpression, instanceExpression);
-		}
-
-		Expression IPropertyRuleMap.GetResolver(object key, Expression contextExpression, Expression instanceExpression) {
-			return GetResolver(key, contextExpression, instanceExpression);
 		}
 	}
 }

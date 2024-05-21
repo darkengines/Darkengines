@@ -31,9 +31,7 @@ namespace Darkengines.Expressions.Mutation {
 			var permissionPropertyInfo = EntityMutationInfo.PermissionEntityType.GetProperty(Property.Name);
 			var resolverExpression = EntityMutationInfo.RuleMap.GetPropertyOperationResolver(
 				memberEntry.Metadata.PropertyInfo,
-				memberEntry.EntityEntry.State == EntityState.Modified
-				|| memberEntry.EntityEntry.State == EntityState.Added
-				|| memberEntry.IsModified ? Operation.Write : Operation.Read,
+				memberEntry.IsModified ? Operation.Edit : Operation.Read,
 				Expression.Constant(EntityMutationInfo.EntityMutationContext.SecurityContext),
 				instanceExpression
 			);

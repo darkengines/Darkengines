@@ -11,6 +11,7 @@ namespace Darkengines.UserGroups.Entities {
 			UserUserGroups = new Collection<UserUserGroup>();
 		}
 		public int Id { get; set; }
+		public string? ExternalId { get; set; }
 		public string DisplayName { get; set; }
 		public virtual ICollection<UserUserGroup> UserUserGroups { get; }
 	}

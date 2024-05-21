@@ -23,9 +23,9 @@ namespace Darkengines.Expressions.Security {
 			node = base.Visit(node);
 			return node;
 		}
-		protected override Expression VisitConstant(ConstantExpression node) {
-			return new NonQueryExpression(base.VisitConstant(node));
-		}
+		//protected override Expression VisitConstant(ConstantExpression node) {
+		//	return new NonQueryExpression(base.VisitConstant(node));
+		//}
 		protected override Expression VisitMember(MemberExpression node) {
 			var expression = Visit(node.Expression);
 			if (expression is NonQueryExpression booleanExpression) return new NonQueryExpression(node.Update(booleanExpression.Expression));

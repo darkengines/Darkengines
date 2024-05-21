@@ -58,19 +58,25 @@ namespace Darkengines.WebSockets {
 					var connectionId = Guid.NewGuid();
 					var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 					var client = new MessagingClient(
-						currentUser, 
-						webSocket, 
-						jsonSerializer, 
-						fluentApi, 
-						serviceProvider, 
-						applicationDbContext, 
-						modelProvider, 
+						connectionId,
+						currentUser,
+						webSocket,
+						jsonSerializer,
+						fluentApi,
+						serviceProvider,
+						applicationDbContext,
+						modelProvider,
 						mutation,
 						messagingSystem
 					);
 					try {
 						Messaging.AddClient(client);
-						clientEntity = new Client { ConnectionId = connectionId, Host = new Uri(@"https://localhost/api"), UserId = currentUser.Id };
+						clientEntity = new Client {
+							ConnectionId = connectionId,
+							Host = new Uri(@"https://localhost/api"),
+							UserId = currentUser.Id,
+							LastKeepAliveDateTime = DateTimeOffset.UtcNow,
+						};
 						await applicationDbContext.Clients.AddAsync(clientEntity);
 						await applicationDbContext.SaveChangesAsync();
 						await client.Start();
